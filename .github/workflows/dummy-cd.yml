@@ -1,0 +1,49 @@
+name: Dummy CD (Guarded by CI)
+
+on:
+  workflow_run:
+    workflows: ["Java CI with Gradle"]
+    types: [completed]
+
+jobs:
+  ci_guard:
+    if: >-
+      ${{
+        github.event.workflow_run.conclusion == 'success' &&
+        (
+          github.event.workflow_run.head_branch == 'staging' ||
+          github.event.workflow_run.head_branch == 'main'
+        )
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: CI guard passed
+        run: |
+          echo "CI workflow succeeded for branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "CD is allowed to continue."
+
+  deploy_staging:
+    needs: ci_guard
+    if: ${{ github.event.workflow_run.head_branch == 'staging' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+    steps:
+      - name: Dummy deploy to staging
+        run: |
+          echo "Deploying to STAGING (dummy)."
+          echo "Build from branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Commit SHA: ${{ github.event.workflow_run.head_sha }}"
+
+  deploy_production:
+    needs: ci_guard
+    if: ${{ github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: Dummy deploy to production
+        run: |
+          echo "Deploying to PRODUCTION (dummy)."
+          echo "Build from branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Commit SHA: ${{ github.event.workflow_run.head_sha }}"
