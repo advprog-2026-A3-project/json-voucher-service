@@ -6,9 +6,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: voucherdb
-      POSTGRES_USER: voucher
-      POSTGRES_PASSWORD: voucher
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - voucher_data:/var/lib/postgresql/data
 
