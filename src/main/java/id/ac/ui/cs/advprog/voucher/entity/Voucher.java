@@ -26,6 +26,9 @@ public class Voucher {
     @Column(nullable = false)
     private Integer quotaRemaining;
 
+    @Column(nullable = false)
+    private Integer discountPercent = 0;
+
     @Lob
     @Column(nullable = false)
     private String terms;
@@ -45,12 +48,14 @@ public class Voucher {
             LocalDateTime validFrom,
             LocalDateTime validUntil,
             Integer quotaTotal,
-            String terms) {
+            String terms
+    ) {
         this.code = code;
         this.validFrom = validFrom;
         this.validUntil = validUntil;
         this.quotaTotal = quotaTotal;
         this.quotaRemaining = quotaTotal;
+        this.discountPercent = 0;
         this.terms = terms;
         this.active = true;
         this.createdAt = LocalDateTime.now();
@@ -82,6 +87,10 @@ public class Voucher {
 
     public String getTerms() {
         return terms;
+    }
+
+    public Integer getDiscountPercent() {
+        return discountPercent;
     }
 
     public Boolean getActive() {
@@ -118,6 +127,10 @@ public class Voucher {
 
     public void setTerms(String terms) {
         this.terms = terms;
+    }
+
+    public void setDiscountPercent(Integer discountPercent) {
+        this.discountPercent = discountPercent;
     }
 
     public void setActive(Boolean active) {
