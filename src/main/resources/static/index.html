@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voucher Service Demo</title>
+  <style>
+    :root {
+      --bg: #f4efe8;
+      --card: #fff;
+      --ink: #1d2433;
+      --muted: #5f6572;
+      --line: #d9dce3;
+      --accent: #b45309;
+      --accent2: #f59e0b;
+      --ok: #047857;
+      --err: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background:
+        radial-gradient(circle at 10% 10%, #ffe7cc, transparent 45%),
+        radial-gradient(circle at 90% 0%, #fde7d6, transparent 35%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 16px 40px;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 34px;
+      letter-spacing: .4px;
+    }
+
+    .sub {
+      margin: 0 0 20px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 10px 24px rgba(22, 24, 35, 0.08);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input, textarea, button {
+      font: inherit;
+    }
+
+    input, textarea {
+      border: 1px solid #cfd5de;
+      border-radius: 10px;
+      padding: 10px 11px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .12s ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .row input {
+      min-width: 180px;
+      flex: 1;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .muted { color: var(--muted); }
+    .ok { color: var(--ok); }
+    .err { color: var(--err); }
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 28px; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+<main class="container">
+  <h1>Voucher Service Demo</h1>
+  <p class="sub">Initial integration FE + BE + DB in one app.</p>
+
+  <section class="card">
+    <h2>Create Voucher</h2>
+    <form id="createForm">
+      <div class="grid">
+        <div class="field">
+          <label for="code">Code</label>
+          <input id="code" type="text" placeholder="WELCOME20" required>
+        </div>
+        <div class="field">
+          <label for="totalQuota">Total Quota</label>
+          <input id="totalQuota" type="number" min="1" value="10" required>
+        </div>
+        <div class="field">
+          <label for="validFrom">Valid From</label>
+          <input id="validFrom" type="datetime-local" required>
+        </div>
+        <div class="field">
+          <label for="validUntil">Valid Until</label>
+          <input id="validUntil" type="datetime-local" required>
+        </div>
+        <div class="field full">
+          <label for="terms">Terms</label>
+          <textarea id="terms" placeholder="diskon 20%, minimal belanja 100000" required></textarea>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn" type="submit">Create</button>
+        <span id="createMsg" class="muted"></span>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Apply Voucher (Checkout)</h2>
+    <div class="row">
+      <input id="checkoutCode" type="text" placeholder="Input voucher code">
+      <button id="checkoutBtn" class="btn" type="button">Apply</button>
+      <span id="checkoutMsg" class="muted"></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row" style="justify-content:space-between;">
+      <h2 style="margin:0;">Voucher List</h2>
+      <button id="reloadBtn" class="btn" type="button">Reload</button>
+    </div>
+    <table>
+      <thead>
+      <tr>
+        <th>Code</th>
+        <th>Quota</th>
+        <th>Validity</th>
+        <th>Status</th>
+        <th>Terms</th>
+      </tr>
+      </thead>
+      <tbody id="voucherRows"></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+  const form = document.getElementById("createForm");
+  const createMsg = document.getElementById("createMsg");
+  const checkoutMsg = document.getElementById("checkoutMsg");
+  const checkoutCodeInput = document.getElementById("checkoutCode");
+  const rows = document.getElementById("voucherRows");
+  const reloadBtn = document.getElementById("reloadBtn");
+  const checkoutBtn = document.getElementById("checkoutBtn");
+
+  const now = new Date();
+  const plus7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  document.getElementById("validFrom").value = toDateTimeLocal(now);
+  document.getElementById("validUntil").value = toDateTimeLocal(plus7);
+
+  function toDateTimeLocal(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
+  function normalizeDateTime(value) {
+    return value.length === 16 ? `${value}:00` : value;
+  }
+
+  function setMessage(node, message, ok) {
+    node.textContent = message;
+    node.className = ok ? "ok" : "err";
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;");
+  }
+
+  async function loadVouchers() {
+    rows.innerHTML = `<tr><td colspan="5" class="muted">Loading...</td></tr>`;
+    try {
+      const response = await fetch("/api/v1/vouchers");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const vouchers = await response.json();
+
+      if (!Array.isArray(vouchers) || vouchers.length === 0) {
+        rows.innerHTML = `<tr><td colspan="5" class="muted">No vouchers yet.</td></tr>`;
+        return;
+      }
+
+      rows.innerHTML = vouchers.map((voucher) => {
+        const validity = `${escapeHtml(voucher.validFrom)}<br>${escapeHtml(voucher.validUntil)}`;
+        const status = voucher.active ? "ACTIVE" : "INACTIVE";
+        const quota = `${voucher.quotaRemaining}/${voucher.quotaTotal}`;
+        return `<tr>
+          <td>${escapeHtml(voucher.code)}</td>
+          <td>${escapeHtml(quota)}</td>
+          <td>${validity}</td>
+          <td>${status}</td>
+          <td>${escapeHtml(voucher.terms)}</td>
+        </tr>`;
+      }).join("");
+    } catch (error) {
+      rows.innerHTML = `<tr><td colspan="5" class="err">Failed to load vouchers.</td></tr>`;
+    }
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    createMsg.textContent = "";
+
+    const body = {
+      code: document.getElementById("code").value.trim(),
+      validFrom: normalizeDateTime(document.getElementById("validFrom").value),
+      validUntil: normalizeDateTime(document.getElementById("validUntil").value),
+      totalQuota: Number(document.getElementById("totalQuota").value),
+      terms: document.getElementById("terms").value.trim()
+    };
+
+    try {
+      const response = await fetch("/api/v1/vouchers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `HTTP ${response.status}`);
+      }
+
+      setMessage(createMsg, "Voucher created.", true);
+      form.reset();
+      document.getElementById("validFrom").value = toDateTimeLocal(new Date());
+      document.getElementById("validUntil").value = toDateTimeLocal(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+      document.getElementById("totalQuota").value = "10";
+      await loadVouchers();
+    } catch (error) {
+      setMessage(createMsg, `Create failed: ${error.message}`, false);
+    }
+  });
+
+  checkoutBtn.addEventListener("click", async () => {
+    checkoutMsg.textContent = "";
+    const code = checkoutCodeInput.value.trim();
+    if (!code) {
+      setMessage(checkoutMsg, "Please input voucher code.", false);
+      return;
+    }
+    try {
+      const response = await fetch(`/api/v1/vouchers/${encodeURIComponent(code)}/checkout`, {
+        method: "POST"
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `HTTP ${response.status}`);
+      }
+      const payload = await response.json();
+      setMessage(checkoutMsg, `Applied. Remaining quota: ${payload.quotaRemaining}`, true);
+      await loadVouchers();
+    } catch (error) {
+      setMessage(checkoutMsg, `Apply failed: ${error.message}`, false);
+    }
+  });
+
+  reloadBtn.addEventListener("click", loadVouchers);
+  loadVouchers();
+</script>
+</body>
+</html>
