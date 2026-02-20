@@ -52,8 +52,14 @@ jobs:
         run: ./gradlew --no-daemon clean test jacocoTestReport --stacktrace
 
       - name: SonarCloud analysis
+        id: sonar_scan
         if: ${{ env.SONAR_TOKEN != '' }}
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         run: ./gradlew --no-daemon sonar --stacktrace
+
+      - name: SonarCloud scanner warning
+        if: ${{ steps.sonar_scan.outcome == 'failure' }}
+        run: echo "::warning::Sonar scanner command failed. Verify SONAR_TOKEN or SonarCloud automatic analysis settings."
