@@ -1,18 +1,19 @@
 package id.ac.ui.cs.advprog.voucher.controller;
 
-import java.util.Map;
-import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import id.ac.ui.cs.advprog.voucher.dto.CreateVoucherRequest;
 import id.ac.ui.cs.advprog.voucher.entity.Voucher;
 import id.ac.ui.cs.advprog.voucher.service.VoucherService;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/vouchers")
@@ -24,7 +25,7 @@ public class VoucherController {
     }
     
     @PostMapping
-    public ResponseEntity<Voucher> createVoucher(@RequestBody CreateVoucherRequest request) {
+    public ResponseEntity<Voucher> createVoucher(@Valid @RequestBody CreateVoucherRequest request) {
         Voucher voucherCreated = voucherService.createVoucher(
                 request.code(), request.validFrom(), request.validUntil(), request.totalQuota(), request.terms()
         );

@@ -1,5 +1,7 @@
 package id.ac.ui.cs.advprog.voucher.entity;
 
+import id.ac.ui.cs.advprog.voucher.exception.InvalidVoucherStateException;
+import id.ac.ui.cs.advprog.voucher.exception.VoucherQuotaExhaustedException;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -61,6 +63,29 @@ public class Voucher {
         this.createdAt = LocalDateTime.now();
     }
 
+    public void checkout(LocalDateTime now) {
+        validateCanBeCheckedOutAt(now);
+        this.quotaRemaining -= 1;
+    }
+
+    private void validateCanBeCheckedOutAt(LocalDateTime now) {
+        if (Boolean.FALSE.equals(this.active)) {
+            throw new InvalidVoucherStateException("voucher is inactive");
+        }
+
+        if (now.isBefore(this.validFrom)) {
+            throw new InvalidVoucherStateException("voucher is not yet valid");
+        }
+
+        if (now.isAfter(this.validUntil)) {
+            throw new InvalidVoucherStateException("voucher has expired");
+        }
+
+        if (this.quotaRemaining <= 0) {
+            throw new VoucherQuotaExhaustedException();
+        }
+    }
+
     public Long getId() {
         return id;
     }
@@ -119,10 +144,6 @@ public class Voucher {
 
     public void setQuotaTotal(Integer quotaTotal) {
         this.quotaTotal = quotaTotal;
-    }
-
-    public void setQuotaRemaining(Integer quotaRemaining) {
-        this.quotaRemaining = quotaRemaining;
     }
 
     public void setTerms(String terms) {
