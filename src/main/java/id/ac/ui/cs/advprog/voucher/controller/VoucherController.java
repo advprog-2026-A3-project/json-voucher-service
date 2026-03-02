@@ -23,11 +23,6 @@ public class VoucherController {
         this.voucherService = voucherService;
     }
     
-    @GetMapping("/ping")
-    public Map<String, String> ping() {
-        return Map.of("status", "ok");
-    }
-    
     @PostMapping
     public ResponseEntity<Voucher> createVoucher(@RequestBody CreateVoucherRequest request) {
         Voucher voucherCreated = voucherService.createVoucher(
