@@ -57,30 +57,40 @@ public class Voucher {
         this.validUntil = validUntil;
         this.quotaTotal = quotaTotal;
         this.quotaRemaining = quotaTotal;
-        this.discountPercent = 0;
         this.terms = terms;
-        this.active = true;
-        this.createdAt = LocalDateTime.now();
     }
 
-    public void checkout(LocalDateTime now) {
+    public void checkout(LocalDateTime now){
         validateCanBeCheckedOutAt(now);
         this.quotaRemaining -= 1;
     }
 
-    private void validateCanBeCheckedOutAt(LocalDateTime now) {
+    private void validateCanBeCheckedOutAt(LocalDateTime now){
+        validateVoucherIsActive();
+        validateVoucherHasStarted(now);
+        validateVoucherNotExpired(now);
+        validateVoucherQuotaAvailable();
+    }
+
+    private void validateVoucherIsActive(){
         if (Boolean.FALSE.equals(this.active)) {
             throw new InvalidVoucherStateException("voucher is inactive");
         }
+    }
 
+    private void validateVoucherHasStarted(LocalDateTime now){
         if (now.isBefore(this.validFrom)) {
             throw new InvalidVoucherStateException("voucher is not yet valid");
         }
+    }
 
+    private void validateVoucherNotExpired(LocalDateTime now){
         if (now.isAfter(this.validUntil)) {
             throw new InvalidVoucherStateException("voucher has expired");
         }
+    }
 
+    private void validateVoucherQuotaAvailable(){
         if (this.quotaRemaining <= 0) {
             throw new VoucherQuotaExhaustedException();
         }
