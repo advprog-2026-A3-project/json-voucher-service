@@ -44,6 +44,13 @@ public class VoucherService {
         return voucherWriteRepository.save(voucher);
     }
 
+    @Transactional
+    public void deleteVoucher(String voucherCode){
+        Voucher voucher = getVoucherByCode(voucherCode);
+        voucherWriteRepository.delete(voucher);
+
+    }
+
     @Transactional(readOnly = true)
     public List<Voucher> listVouchers(){
         return voucherReadRepository.findAllByCreatedAtDesc();

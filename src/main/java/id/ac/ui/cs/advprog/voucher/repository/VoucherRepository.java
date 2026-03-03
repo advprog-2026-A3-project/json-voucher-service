@@ -34,6 +34,11 @@ public class VoucherRepository implements VoucherReadRepository, VoucherWriteRep
     }
 
     @Override
+    public void delete(Voucher entity){
+        jpaVoucherRepository.delete(entity);
+    }
+
+    @Override
     public boolean existsByVoucherCode(String voucherCode){
         return jpaVoucherRepository.existsByVoucherCode(voucherCode);
     }
