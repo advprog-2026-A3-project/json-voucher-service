@@ -1,8 +1,14 @@
 package id.ac.ui.cs.advprog.voucher.entity;
 
+import id.ac.ui.cs.advprog.voucher.exception.InvalidVoucherStateException;
+import id.ac.ui.cs.advprog.voucher.exception.VoucherQuotaExhaustedException;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@NoArgsConstructor
 @Entity
 @Table(name = "vouchers")
 public class Voucher {
@@ -11,8 +17,8 @@ public class Voucher {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String code;
+    @Column(name = "code", nullable = false, unique = true)
+    private String voucherCode;
 
     @Column(nullable = false)
     private LocalDateTime validFrom;
@@ -21,7 +27,7 @@ public class Voucher {
     private LocalDateTime validUntil;
 
     @Column(nullable = false)
-    private Integer quotaTotal;
+    private Integer totalQuota;
 
     @Column(nullable = false)
     private Integer quotaRemaining;
@@ -39,105 +45,67 @@ public class Voucher {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public Voucher() {
-
-    }
-
     public Voucher(
-            String code,
+            String voucherCode,
             LocalDateTime validFrom,
             LocalDateTime validUntil,
-            Integer quotaTotal,
+            Integer totalQuota,
             String terms
     ) {
-        this.code = code;
+        this.voucherCode = voucherCode;
         this.validFrom = validFrom;
         this.validUntil = validUntil;
-        this.quotaTotal = quotaTotal;
-        this.quotaRemaining = quotaTotal;
-        this.discountPercent = 0;
-        this.terms = terms;
-        this.active = true;
-        this.createdAt = LocalDateTime.now();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public LocalDateTime getValidFrom() {
-        return validFrom;
-    }
-
-    public LocalDateTime getValidUntil() {
-        return validUntil;
-    }
-
-    public Integer getQuotaTotal() {
-        return quotaTotal;
-    }
-
-    public Integer getQuotaRemaining() {
-        return quotaRemaining;
-    }
-
-    public String getTerms() {
-        return terms;
-    }
-
-    public Integer getDiscountPercent() {
-        return discountPercent;
-    }
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public void setValidFrom(LocalDateTime validFrom) {
-        this.validFrom = validFrom;
-    }
-
-    public void setValidUntil(LocalDateTime validUntil) {
-        this.validUntil = validUntil;
-    }
-
-    public void setQuotaTotal(Integer quotaTotal) {
-        this.quotaTotal = quotaTotal;
-    }
-
-    public void setQuotaRemaining(Integer quotaRemaining) {
-        this.quotaRemaining = quotaRemaining;
-    }
-
-    public void setTerms(String terms) {
+        this.totalQuota = totalQuota;
+        this.quotaRemaining = totalQuota;
         this.terms = terms;
     }
 
-    public void setDiscountPercent(Integer discountPercent) {
-        this.discountPercent = discountPercent;
+    public void updateDetails(LocalDateTime validFrom, LocalDateTime validUntil, Integer totalQuota, String terms){
+        int usedQuota = this.totalQuota - this.quotaRemaining;
+        if (totalQuota < usedQuota){
+            throw new InvalidVoucherStateException("total quota can't be less than used quota");
+        }
+
+        this.validFrom = validFrom;
+        this.validUntil = validUntil;
+        this.totalQuota = totalQuota;
+        this.quotaRemaining = totalQuota - usedQuota;
+        this.terms = terms;
+    }
+    
+    public void checkout(LocalDateTime now){
+        validateCanBeCheckedOutAt(now);
+        this.quotaRemaining -= 1;
     }
 
-    public void setActive(Boolean active) {
-        this.active = active;
+    private void validateCanBeCheckedOutAt(LocalDateTime now){
+        validateVoucherIsActive();
+        validateVoucherHasStarted(now);
+        validateVoucherNotExpired(now);
+        validateVoucherQuotaAvailable();
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    private void validateVoucherIsActive(){
+        if (Boolean.FALSE.equals(this.active)){
+            throw new InvalidVoucherStateException("voucher is inactive");
+        }
+    }
+
+    private void validateVoucherHasStarted(LocalDateTime now){
+        if (now.isBefore(this.validFrom)){
+            throw new InvalidVoucherStateException("voucher is not yet valid");
+        }
+    }
+
+    private void validateVoucherNotExpired(LocalDateTime now){
+        if (now.isAfter(this.validUntil)){
+            throw new InvalidVoucherStateException("voucher has expired");
+        }
+    }
+
+    private void validateVoucherQuotaAvailable(){
+        if (this.quotaRemaining <= 0){
+            throw new VoucherQuotaExhaustedException();
+        }
     }
 }

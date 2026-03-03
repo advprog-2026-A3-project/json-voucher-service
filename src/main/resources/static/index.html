@@ -167,8 +167,8 @@
     <form id="createForm">
       <div class="grid">
         <div class="field">
-          <label for="code">Code</label>
-          <input id="code" type="text" placeholder="WELCOME20" required>
+          <label for="voucherCode">Voucher Code</label>
+          <input id="voucherCode" type="text" placeholder="WELCOME20" required>
         </div>
         <div class="field">
           <label for="totalQuota">Total Quota</label>
@@ -197,7 +197,7 @@
   <section class="card">
     <h2>Apply Voucher (Checkout)</h2>
     <div class="row">
-      <input id="checkoutCode" type="text" placeholder="Input voucher code">
+      <input id="checkoutVoucherCode" type="text" placeholder="Input voucher code">
       <button id="checkoutBtn" class="btn" type="button">Apply</button>
       <span id="checkoutMsg" class="muted"></span>
     </div>
@@ -227,7 +227,7 @@
   const form = document.getElementById("createForm");
   const createMsg = document.getElementById("createMsg");
   const checkoutMsg = document.getElementById("checkoutMsg");
-  const checkoutCodeInput = document.getElementById("checkoutCode");
+  const checkoutVoucherCodeInput = document.getElementById("checkoutVoucherCode");
   const rows = document.getElementById("voucherRows");
   const reloadBtn = document.getElementById("reloadBtn");
   const checkoutBtn = document.getElementById("checkoutBtn");
@@ -273,9 +273,9 @@
       rows.innerHTML = vouchers.map((voucher) => {
         const validity = `${escapeHtml(voucher.validFrom)}<br>${escapeHtml(voucher.validUntil)}`;
         const status = voucher.active ? "ACTIVE" : "INACTIVE";
-        const quota = `${voucher.quotaRemaining}/${voucher.quotaTotal}`;
+        const quota = `${voucher.quotaRemaining}/${voucher.totalQuota}`;
         return `<tr>
-          <td>${escapeHtml(voucher.code)}</td>
+          <td>${escapeHtml(voucher.voucherCode)}</td>
           <td>${escapeHtml(quota)}</td>
           <td>${validity}</td>
           <td>${status}</td>
@@ -292,7 +292,7 @@
     createMsg.textContent = "";
 
     const body = {
-      code: document.getElementById("code").value.trim(),
+      voucherCode: document.getElementById("voucherCode").value.trim(),
       validFrom: normalizeDateTime(document.getElementById("validFrom").value),
       validUntil: normalizeDateTime(document.getElementById("validUntil").value),
       totalQuota: Number(document.getElementById("totalQuota").value),
@@ -324,13 +324,13 @@
 
   checkoutBtn.addEventListener("click", async () => {
     checkoutMsg.textContent = "";
-    const code = checkoutCodeInput.value.trim();
-    if (!code) {
+    const voucherCode = checkoutVoucherCodeInput.value.trim();
+    if (!voucherCode) {
       setMessage(checkoutMsg, "Please input voucher code.", false);
       return;
     }
     try {
-      const response = await fetch(`/api/v1/vouchers/${encodeURIComponent(code)}/checkout`, {
+      const response = await fetch(`/api/v1/vouchers/${encodeURIComponent(voucherCode)}/checkout`, {
         method: "POST"
       });
       if (!response.ok) {
