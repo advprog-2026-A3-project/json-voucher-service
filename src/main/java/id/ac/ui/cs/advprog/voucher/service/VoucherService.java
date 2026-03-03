@@ -25,31 +25,48 @@ public class VoucherService {
 
     @Transactional
     public Voucher createVoucher(
-            String voucherCode, LocalDateTime validFrom, LocalDateTime validUntil, Integer totalQuota, String terms
-    ) {
+            String voucherCode, LocalDateTime validFrom, LocalDateTime validUntil, 
+            Integer totalQuota, String terms
+    ){
         validateVoucherPeriod(validFrom, validUntil);
         Voucher voucher = new Voucher(voucherCode, validFrom, validUntil, totalQuota, terms);
         return voucherWriteRepository.save(voucher);
     }
 
+    @Transactional
+    public Voucher updateVoucher(
+        String voucherCode, LocalDateTime newValidFrom, LocalDateTime newValidUntil, 
+        Integer totalQuota, String newTerms
+    ){
+        validateVoucherPeriod(newValidFrom, newValidUntil);
+        Voucher voucher = findVoucherByCode(voucherCode);
+        voucher.updateDetails(newValidFrom, newValidUntil, totalQuota, newTerms);
+        return voucherWriteRepository.save(voucher);
+    }
+
     @Transactional(readOnly = true)
-    public List<Voucher> listVouchers() {
+    public List<Voucher> listVouchers(){
         return voucherReadRepository.findAllByCreatedAtDesc();
     }
 
     @Transactional
-    public Voucher checkoutVoucher(String voucherCode) {
+    public Voucher checkoutVoucher(String voucherCode){
         Voucher voucher = findVoucherByCode(voucherCode);
         voucher.checkout(LocalDateTime.now());
         return voucherWriteRepository.save(voucher);
     }
 
-    private Voucher findVoucherByCode(String voucherCode) {
+    private Voucher findVoucherByCode(String voucherCode){
         return voucherReadRepository.findByVoucherCode(voucherCode)
                 .orElseThrow(VoucherNotFoundException::new);
     }
 
-    private void validateVoucherPeriod(LocalDateTime validFrom, LocalDateTime validUntil) {
+    @Transactional(readOnly = true)
+    public Voucher getVoucherByCode(String voucherCode){
+        return findVoucherByCode(voucherCode);
+    }
+
+    private void validateVoucherPeriod(LocalDateTime validFrom, LocalDateTime validUntil){
         if (validUntil.isBefore(validFrom)) {
             throw new InvalidVoucherPeriodException();
         }

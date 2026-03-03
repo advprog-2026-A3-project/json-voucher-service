@@ -273,7 +273,7 @@
       rows.innerHTML = vouchers.map((voucher) => {
         const validity = `${escapeHtml(voucher.validFrom)}<br>${escapeHtml(voucher.validUntil)}`;
         const status = voucher.active ? "ACTIVE" : "INACTIVE";
-        const quota = `${voucher.quotaRemaining}/${voucher.quotaTotal}`;
+        const quota = `${voucher.quotaRemaining}/${voucher.totalQuota}`;
         return `<tr>
           <td>${escapeHtml(voucher.voucherCode)}</td>
           <td>${escapeHtml(quota)}</td>

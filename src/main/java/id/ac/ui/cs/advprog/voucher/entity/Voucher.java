@@ -27,7 +27,7 @@ public class Voucher {
     private LocalDateTime validUntil;
 
     @Column(nullable = false)
-    private Integer quotaTotal;
+    private Integer totalQuota;
 
     @Column(nullable = false)
     private Integer quotaRemaining;
@@ -49,17 +49,26 @@ public class Voucher {
             String voucherCode,
             LocalDateTime validFrom,
             LocalDateTime validUntil,
-            Integer quotaTotal,
+            Integer totalQuota,
             String terms
     ) {
         this.voucherCode = voucherCode;
         this.validFrom = validFrom;
         this.validUntil = validUntil;
-        this.quotaTotal = quotaTotal;
-        this.quotaRemaining = quotaTotal;
+        this.totalQuota = totalQuota;
+        this.quotaRemaining = totalQuota;
         this.terms = terms;
     }
 
+    public void updateDetails(
+        LocalDateTime validFrom, LocalDateTime validUntil, Integer totalQuota, String terms
+    ){
+        this.validFrom = validFrom;
+        this.validUntil = validUntil;
+        this.totalQuota = totalQuota;
+        this.terms = terms;
+    }
+    
     public void checkout(LocalDateTime now){
         validateCanBeCheckedOutAt(now);
         this.quotaRemaining -= 1;

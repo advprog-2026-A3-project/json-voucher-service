@@ -21,12 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class VoucherController {
     private final VoucherService voucherService;
 
-    public VoucherController(VoucherService voucherService) {
+    public VoucherController(VoucherService voucherService){
         this.voucherService = voucherService;
     }
     
     @PostMapping
-    public ResponseEntity<VoucherResponse> createVoucher(@Valid @RequestBody CreateVoucherRequest request) {
+    public ResponseEntity<VoucherResponse> createVoucher(@Valid @RequestBody CreateVoucherRequest request){
         Voucher voucherCreated = voucherService.createVoucher(
                 request.voucherCode(), request.validFrom(), request.validUntil(), request.totalQuota(), request.terms()
         );
@@ -34,18 +34,24 @@ public class VoucherController {
     }
 
     @GetMapping
-    public ResponseEntity<List<VoucherResponse>> getAllVouchers() {
+    public ResponseEntity<List<VoucherResponse>> getAllVouchers(){
          List<VoucherResponse> vouchers = voucherService.listVouchers().stream().map(VoucherResponse::from).toList();
         return ResponseEntity.ok(vouchers);
     }
 
     @PostMapping("/{voucherCode}/checkout")
-    public ResponseEntity<Map<String, Object>> checkoutVoucher(@PathVariable String voucherCode) {
+    public ResponseEntity<Map<String, Object>> checkoutVoucher(@PathVariable String voucherCode){
         Voucher updated = voucherService.checkoutVoucher(voucherCode);
         return ResponseEntity.ok(Map.of(
                 "status", "SUCCESS",
                 "voucherCode", updated.getVoucherCode(),
                 "quotaRemaining", updated.getQuotaRemaining()
         ));
+    }
+
+    @GetMapping("/{voucherCode}")
+    public ResponseEntity<VoucherResponse> getVoucherByCode(@PathVariable String voucherCode){
+        Voucher voucher = voucherService.getVoucherByCode(voucherCode);
+        return ResponseEntity.ok(VoucherResponse.from(voucher));
     }
 }
