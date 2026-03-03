@@ -18,7 +18,7 @@ public class VoucherService {
     public VoucherService(
             VoucherReadRepository voucherReadRepository,
             VoucherWriteRepository voucherWriteRepository
-    ) {
+    ){
         this.voucherReadRepository = voucherReadRepository;
         this.voucherWriteRepository = voucherWriteRepository;
     }
@@ -35,20 +35,19 @@ public class VoucherService {
 
     @Transactional
     public Voucher updateVoucher(
-        String voucherCode, LocalDateTime newValidFrom, LocalDateTime newValidUntil, 
-        Integer totalQuota, String newTerms
+        String voucherCode, LocalDateTime validFrom, LocalDateTime validUntil,
+        Integer totalQuota, String terms
     ){
-        validateVoucherPeriod(newValidFrom, newValidUntil);
+        validateVoucherPeriod(validFrom, validUntil);
         Voucher voucher = findVoucherByCode(voucherCode);
-        voucher.updateDetails(newValidFrom, newValidUntil, totalQuota, newTerms);
+        voucher.updateDetails(validFrom, validUntil, totalQuota, terms);
         return voucherWriteRepository.save(voucher);
     }
 
     @Transactional
     public void deleteVoucher(String voucherCode){
-        Voucher voucher = getVoucherByCode(voucherCode);
+        Voucher voucher = findVoucherByCode(voucherCode);
         voucherWriteRepository.delete(voucher);
-
     }
 
     @Transactional(readOnly = true)
@@ -74,7 +73,7 @@ public class VoucherService {
     }
 
     private void validateVoucherPeriod(LocalDateTime validFrom, LocalDateTime validUntil){
-        if (validUntil.isBefore(validFrom)) {
+        if (validUntil.isBefore(validFrom)){
             throw new InvalidVoucherPeriodException();
         }
     }

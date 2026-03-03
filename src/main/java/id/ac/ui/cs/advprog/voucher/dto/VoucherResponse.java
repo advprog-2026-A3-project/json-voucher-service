@@ -15,7 +15,7 @@ public record VoucherResponse(
         Boolean active,
         LocalDateTime createdAt
 ) {
-    public static VoucherResponse from(Voucher voucher) {
+    public static VoucherResponse from(Voucher voucher){
         return new VoucherResponse(
                 voucher.getId(),
                 voucher.getVoucherCode(),

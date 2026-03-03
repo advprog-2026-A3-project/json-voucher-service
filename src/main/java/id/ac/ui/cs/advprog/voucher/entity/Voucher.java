@@ -60,12 +60,16 @@ public class Voucher {
         this.terms = terms;
     }
 
-    public void updateDetails(
-        LocalDateTime validFrom, LocalDateTime validUntil, Integer totalQuota, String terms
-    ){
+    public void updateDetails(LocalDateTime validFrom, LocalDateTime validUntil, Integer totalQuota, String terms){
+        int usedQuota = this.totalQuota - this.quotaRemaining;
+        if (totalQuota < usedQuota){
+            throw new InvalidVoucherStateException("total quota can't be less than used quota");
+        }
+
         this.validFrom = validFrom;
         this.validUntil = validUntil;
         this.totalQuota = totalQuota;
+        this.quotaRemaining = totalQuota - usedQuota;
         this.terms = terms;
     }
     
@@ -82,25 +86,25 @@ public class Voucher {
     }
 
     private void validateVoucherIsActive(){
-        if (Boolean.FALSE.equals(this.active)) {
+        if (Boolean.FALSE.equals(this.active)){
             throw new InvalidVoucherStateException("voucher is inactive");
         }
     }
 
     private void validateVoucherHasStarted(LocalDateTime now){
-        if (now.isBefore(this.validFrom)) {
+        if (now.isBefore(this.validFrom)){
             throw new InvalidVoucherStateException("voucher is not yet valid");
         }
     }
 
     private void validateVoucherNotExpired(LocalDateTime now){
-        if (now.isAfter(this.validUntil)) {
+        if (now.isAfter(this.validUntil)){
             throw new InvalidVoucherStateException("voucher has expired");
         }
     }
 
     private void validateVoucherQuotaAvailable(){
-        if (this.quotaRemaining <= 0) {
+        if (this.quotaRemaining <= 0){
             throw new VoucherQuotaExhaustedException();
         }
     }

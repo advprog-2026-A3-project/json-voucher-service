@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.voucher.controller;
 
 import id.ac.ui.cs.advprog.voucher.dto.CreateVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.UpdateVoucherRequest;
 import id.ac.ui.cs.advprog.voucher.dto.VoucherResponse;
 import id.ac.ui.cs.advprog.voucher.entity.Voucher;
 import id.ac.ui.cs.advprog.voucher.service.VoucherService;
@@ -9,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,5 +56,21 @@ public class VoucherController {
     public ResponseEntity<VoucherResponse> getVoucherByCode(@PathVariable String voucherCode){
         Voucher voucher = voucherService.getVoucherByCode(voucherCode);
         return ResponseEntity.ok(VoucherResponse.from(voucher));
+    }
+
+    @PutMapping("/{voucherCode}")
+    public ResponseEntity<VoucherResponse> updateVoucher(@PathVariable String voucherCode,
+            @Valid @RequestBody UpdateVoucherRequest request
+    ){
+        Voucher updatedVoucher = voucherService.updateVoucher(
+                voucherCode, request.validFrom(), request.validUntil(), request.totalQuota(), request.terms()
+        );
+        return ResponseEntity.ok(VoucherResponse.from(updatedVoucher));
+    }
+
+    @DeleteMapping("/{voucherCode}")
+    public ResponseEntity<Void> deleteVoucher(@PathVariable String voucherCode){
+        voucherService.deleteVoucher(voucherCode);
+        return ResponseEntity.noContent().build();
     }
 }
