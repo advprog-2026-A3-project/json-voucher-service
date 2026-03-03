@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface VoucherRepository extends JpaRepository<Voucher, Long> {
-    Optional<Voucher> findByCode(String code);
-    boolean existsByCode(String code);
+    Optional<Voucher> findByVoucherCode(String voucherCode);
+    boolean existsByVoucherCode(String voucherCode);
     List<Voucher> findAllByOrderByCreatedAtDesc();
 }

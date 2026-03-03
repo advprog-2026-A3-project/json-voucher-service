@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public record CreateVoucherRequest(
-        @NotBlank String code,
+        @NotBlank String voucherCode,
         @NotNull LocalDateTime validFrom,
         @NotNull LocalDateTime validUntil,
         @NotNull @Min(1) Integer totalQuota,

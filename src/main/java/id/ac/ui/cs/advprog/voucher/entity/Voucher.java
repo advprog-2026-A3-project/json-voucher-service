@@ -17,8 +17,8 @@ public class Voucher {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String code;
+    @Column(name = "code", nullable = false, unique = true)
+    private String voucherCode;
 
     @Column(nullable = false)
     private LocalDateTime validFrom;
@@ -46,13 +46,13 @@ public class Voucher {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public Voucher(
-            String code,
+            String voucherCode,
             LocalDateTime validFrom,
             LocalDateTime validUntil,
             Integer quotaTotal,
             String terms
     ) {
-        this.code = code;
+        this.voucherCode = voucherCode;
         this.validFrom = validFrom;
         this.validUntil = validUntil;
         this.quotaTotal = quotaTotal;

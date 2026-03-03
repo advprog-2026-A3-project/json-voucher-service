@@ -2,9 +2,7 @@ package id.ac.ui.cs.advprog.voucher.service;
 
 import id.ac.ui.cs.advprog.voucher.entity.Voucher;
 import id.ac.ui.cs.advprog.voucher.exception.InvalidVoucherPeriodException;
-import id.ac.ui.cs.advprog.voucher.exception.InvalidVoucherStateException;
 import id.ac.ui.cs.advprog.voucher.exception.VoucherNotFoundException;
-import id.ac.ui.cs.advprog.voucher.exception.VoucherQuotaExhaustedException;
 import id.ac.ui.cs.advprog.voucher.repository.VoucherRepository;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,7 +39,7 @@ public class VoucherService {
     }
 
     private Voucher findVoucherByCode(String voucherCode) {
-        return voucherRepository.findByCode(voucherCode)
+        return voucherRepository.findByVoucherCode(voucherCode)
                 .orElseThrow(VoucherNotFoundException::new);
     }
 
@@ -50,5 +48,4 @@ public class VoucherService {
             throw new InvalidVoucherPeriodException();
         }
     }
-
 }
