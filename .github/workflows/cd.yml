@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout staging branch
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Deploy to Heroku staging
         env:
