@@ -26,7 +26,7 @@ public class Voucher {
     @Column(nullable = false)
     private LocalDateTime validUntil;
 
-    @Column(nullable = false)
+    @Column(name = "quota_total", nullable = false)
     private Integer totalQuota;
 
     @Column(nullable = false)
