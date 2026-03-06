@@ -35,8 +35,7 @@ public class Voucher {
     @Column(nullable = false)
     private Integer discountPercent = 0;
 
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "text")
     private String terms;
 
     @Column(nullable = false)
