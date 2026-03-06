@@ -1,26 +1,17 @@
 name: Heroku CD
 
 on:
-  workflow_run:
-    workflows: ["Java CI with Gradle"]
-    types: [completed]
+  push:
+    branches: ["staging"]
 
 jobs:
   deploy_staging:
-    if: >-
-      ${{
-        github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.head_branch == 'staging'
-      }}
     runs-on: ubuntu-latest
     environment:
       name: staging
     steps:
-      - name: Checkout staging commit
+      - name: Checkout staging branch
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-          fetch-depth: 0
 
       - name: Deploy to Heroku staging
         env:
