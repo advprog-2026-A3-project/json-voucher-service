@@ -2,7 +2,7 @@ name: Heroku CD
 
 on:
   push:
-    branches: ["staging"]
+    branches: ["staging", "feat/db-migration"]
 
 jobs:
   deploy_staging:
@@ -32,6 +32,12 @@ jobs:
 
       - name: Smoke test staging health endpoint
         env:
+          HEROKU_APP_URL: ${{ secrets.HEROKU_APP_URL_STAGING }}
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME_STAGING }}
         run: |
-          curl --fail --silent --show-error "https://${HEROKU_APP_NAME}.herokuapp.com/actuator/health" | grep '"status":"UP"'
+          if [ -n "$HEROKU_APP_URL" ]; then
+            HEALTH_URL="${HEROKU_APP_URL%/}/actuator/health"
+          else
+            HEALTH_URL="https://${HEROKU_APP_NAME}.herokuapp.com/actuator/health"
+          fi
+          curl --fail --silent --show-error "$HEALTH_URL" | grep '"status":"UP"'
