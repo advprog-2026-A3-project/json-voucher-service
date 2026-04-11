@@ -19,6 +19,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class VoucherControllerTest {
+    private static final int DISCOUNT_PERCENT = 10;
+    private static final long MINIMUM_PURCHASE_AMOUNT = 0;
 
     @Mock
     private VoucherService voucherService;
@@ -40,6 +42,9 @@ class VoucherControllerTest {
                 LocalDateTime.of(2026, 3, 1, 10, 0),
                 LocalDateTime.of(2026, 3, 10, 10, 0),
                 10,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
                 "Terms"
         );
         when(voucherService.createVoucher(
@@ -72,6 +77,9 @@ class VoucherControllerTest {
                 LocalDateTime.of(2026, 3, 1, 10, 0),
                 LocalDateTime.of(2026, 3, 10, 10, 0),
                 10,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
                 "Terms"
         );
         when(voucherService.listVouchers()).thenReturn(List.of(voucher));
@@ -92,6 +100,9 @@ class VoucherControllerTest {
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now().plusDays(1),
                 10,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
                 "Terms"
         );
         voucher.checkout(LocalDateTime.now());
@@ -114,6 +125,9 @@ class VoucherControllerTest {
                 LocalDateTime.of(2026, 3, 1, 10, 0),
                 LocalDateTime.of(2026, 3, 10, 10, 0),
                 10,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
                 "Terms"
         );
         when(voucherService.getVoucherByCode("DISC10")).thenReturn(voucher);
@@ -140,6 +154,9 @@ class VoucherControllerTest {
                 LocalDateTime.of(2026, 3, 1, 10, 0),
                 LocalDateTime.of(2026, 3, 10, 10, 0),
                 10,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
                 "Terms"
         );
 
@@ -147,6 +164,9 @@ class VoucherControllerTest {
                 request.validFrom(),
                 request.validUntil(),
                 request.totalQuota(),
+                voucher.getDiscountPercent(),
+                voucher.getMinimumPurchaseAmount(),
+                voucher.getMaxDiscountAmount(),
                 request.terms()
         );
 

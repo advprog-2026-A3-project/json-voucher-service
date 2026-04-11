@@ -8,6 +8,9 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 class VoucherTest {
+    private static final int DISCOUNT_PERCENT = 10;
+    private static final long MINIMUM_PURCHASE_AMOUNT = 0;
+
     @Test
     void testCheckout() {
         Voucher voucher = new Voucher(
@@ -15,6 +18,9 @@ class VoucherTest {
                 LocalDateTime.of(2026, 3, 1, 10, 0),
                 LocalDateTime.of(2026, 3, 10, 10, 0),
                 3,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
                 "Terms"
         );
 
@@ -29,6 +35,9 @@ class VoucherTest {
                 LocalDateTime.of(2026, 3, 10, 10, 0),
                 LocalDateTime.of(2026, 3, 20, 10, 0),
                 3,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
                 "Terms"
         );
 
@@ -47,6 +56,9 @@ class VoucherTest {
                 LocalDateTime.of(2026, 3, 1, 10, 0),
                 LocalDateTime.of(2026, 3, 10, 10, 0),
                 3,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
                 "Terms"
         );
 
@@ -65,6 +77,9 @@ class VoucherTest {
                 LocalDateTime.of(2026, 3, 1, 10, 0),
                 LocalDateTime.of(2026, 3, 10, 10, 0),
                 1,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
                 "Terms"
         );
 
@@ -84,6 +99,9 @@ class VoucherTest {
                 LocalDateTime.of(2026, 3, 1, 10, 0),
                 LocalDateTime.of(2026, 3, 10, 10, 0),
                 5,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
                 "Terms"
         );
 
@@ -92,6 +110,9 @@ class VoucherTest {
                 LocalDateTime.of(2026, 3, 2, 10, 0),
                 LocalDateTime.of(2026, 3, 12, 10, 0),
                 8,
+                voucher.getDiscountPercent(),
+                voucher.getMinimumPurchaseAmount(),
+                voucher.getMaxDiscountAmount(),
                 "Updated terms"
         );
         assertEquals(8, voucher.getTotalQuota());
@@ -106,6 +127,9 @@ class VoucherTest {
                 LocalDateTime.of(2026, 3, 1, 10, 0),
                 LocalDateTime.of(2026, 3, 10, 10, 0),
                 3,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
                 "Terms"
         );
 

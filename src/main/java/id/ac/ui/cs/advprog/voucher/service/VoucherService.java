@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class VoucherService {
+    private static final int DEFAULT_DISCOUNT_PERCENT = 10;
+    private static final long DEFAULT_MINIMUM_PURCHASE_AMOUNT = 0;
     private final VoucherReadRepository voucherReadRepository;
     private final VoucherWriteRepository voucherWriteRepository;
 
@@ -29,7 +31,16 @@ public class VoucherService {
             Integer totalQuota, String terms
     ){
         validateVoucherPeriod(validFrom, validUntil);
-        Voucher voucher = new Voucher(voucherCode, validFrom, validUntil, totalQuota, terms);
+        Voucher voucher = new Voucher(
+                voucherCode,
+                validFrom,
+                validUntil,
+                totalQuota,
+                DEFAULT_DISCOUNT_PERCENT,
+                DEFAULT_MINIMUM_PURCHASE_AMOUNT,
+                null,
+                terms
+        );
         return voucherWriteRepository.save(voucher);
     }
 
@@ -40,7 +51,15 @@ public class VoucherService {
     ){
         validateVoucherPeriod(validFrom, validUntil);
         Voucher voucher = findVoucherByCode(voucherCode);
-        voucher.updateDetails(validFrom, validUntil, totalQuota, terms);
+        voucher.updateDetails(
+                validFrom,
+                validUntil,
+                totalQuota,
+                voucher.getDiscountPercent(),
+                voucher.getMinimumPurchaseAmount(),
+                voucher.getMaxDiscountAmount(),
+                terms
+        );
         return voucherWriteRepository.save(voucher);
     }
 

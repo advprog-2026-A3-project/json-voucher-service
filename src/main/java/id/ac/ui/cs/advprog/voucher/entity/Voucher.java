@@ -33,7 +33,13 @@ public class Voucher {
     private Integer quotaRemaining;
 
     @Column(nullable = false)
-    private Integer discountPercent = 0;
+    private Integer discountPercent;
+
+    @Column(name = "minimum_purchase_amount", nullable = false)
+    private Long minimumPurchaseAmount;
+
+    @Column(name = "max_discount_amount")
+    private Long maxDiscountAmount;
 
     @Column(nullable = false, columnDefinition = "text")
     private String terms;
@@ -49,17 +55,31 @@ public class Voucher {
             LocalDateTime validFrom,
             LocalDateTime validUntil,
             Integer totalQuota,
+            Integer discountPercent,
+            Long minimumPurchaseAmount,
+            Long maxDiscountAmount,
             String terms
-    ) {
+    ){
         this.voucherCode = voucherCode;
         this.validFrom = validFrom;
         this.validUntil = validUntil;
         this.totalQuota = totalQuota;
         this.quotaRemaining = totalQuota;
+        this.discountPercent = discountPercent;
+        this.minimumPurchaseAmount = minimumPurchaseAmount;
+        this.maxDiscountAmount = maxDiscountAmount;
         this.terms = terms;
     }
 
-    public void updateDetails(LocalDateTime validFrom, LocalDateTime validUntil, Integer totalQuota, String terms){
+    public void updateDetails(
+        LocalDateTime validFrom,
+        LocalDateTime validUntil,
+        Integer totalQuota,
+        Integer discountPercent,
+        Long minimumPurchaseAmount,
+        Long maxDiscountAmount,
+        String terms
+    ){
         int usedQuota = this.totalQuota - this.quotaRemaining;
         if (totalQuota < usedQuota){
             throw new InvalidVoucherStateException("total quota can't be less than used quota");
@@ -69,6 +89,9 @@ public class Voucher {
         this.validUntil = validUntil;
         this.totalQuota = totalQuota;
         this.quotaRemaining = totalQuota - usedQuota;
+        this.discountPercent = discountPercent;
+        this.minimumPurchaseAmount = minimumPurchaseAmount;
+        this.maxDiscountAmount = maxDiscountAmount;
         this.terms = terms;
     }
     
@@ -77,11 +100,45 @@ public class Voucher {
         this.quotaRemaining -= 1;
     }
 
+    public long previewDiscount(LocalDateTime now, long subtotal){
+        validateEgligible(now, subtotal);
+        return calculateDiscount(subtotal);
+    }
+
+    public long calculateDiscount(long subtotal){
+        long discount = subtotal * this.discountPercent;
+
+        if (this.maxDiscountAmount == null){
+            return discount;
+        }
+        return Math.min(discount, this.maxDiscountAmount);
+    }
+
+    public void redeem(LocalDateTime now, long subtotal){
+        validateEgligible(now, subtotal);
+        this.quotaRemaining -= 1;
+    }
+
+    public void deactivate(){
+        this.active = false;
+    }
+
     private void validateCanBeCheckedOutAt(LocalDateTime now){
         validateVoucherIsActive();
         validateVoucherHasStarted(now);
         validateVoucherNotExpired(now);
         validateVoucherQuotaAvailable();
+    }
+
+    private void validateEgligible(LocalDateTime now, long subtotal){
+        validateVoucherIsActive();
+        validateVoucherHasStarted(now);
+        validateVoucherNotExpired(now);
+        validateVoucherQuotaAvailable();
+
+        if (subtotal < this.minimumPurchaseAmount){
+            throw new InvalidVoucherStateException("subtotal doesn't meet minimum purchase amount");
+        }
     }
 
     private void validateVoucherIsActive(){
