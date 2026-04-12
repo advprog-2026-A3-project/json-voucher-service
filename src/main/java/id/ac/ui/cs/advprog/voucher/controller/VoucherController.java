@@ -31,7 +31,14 @@ public class VoucherController {
     @PostMapping
     public ResponseEntity<VoucherResponse> createVoucher(@Valid @RequestBody CreateVoucherRequest request){
         Voucher voucherCreated = voucherService.createVoucher(
-                request.voucherCode(), request.validFrom(), request.validUntil(), request.totalQuota(), request.terms()
+                request.voucherCode(),
+                request.validFrom(),
+                request.validUntil(),
+                request.totalQuota(),
+                request.discountPercent(),
+                request.minimumPurchaseAmount(),
+                request.maxDiscountAmount(),
+                request.terms()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(VoucherResponse.from(voucherCreated));
     }
@@ -63,7 +70,14 @@ public class VoucherController {
             @Valid @RequestBody UpdateVoucherRequest request
     ){
         Voucher updatedVoucher = voucherService.updateVoucher(
-                voucherCode, request.validFrom(), request.validUntil(), request.totalQuota(), request.terms()
+                voucherCode,
+                request.validFrom(),
+                request.validUntil(),
+                request.totalQuota(),
+                request.discountPercent(),
+                request.minimumPurchaseAmount(),
+                request.maxDiscountAmount(),
+                request.terms()
         );
         return ResponseEntity.ok(VoucherResponse.from(updatedVoucher));
     }

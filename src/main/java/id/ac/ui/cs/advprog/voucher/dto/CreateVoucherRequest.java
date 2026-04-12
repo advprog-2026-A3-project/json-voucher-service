@@ -10,5 +10,8 @@ public record CreateVoucherRequest(
         @NotNull LocalDateTime validFrom,
         @NotNull LocalDateTime validUntil,
         @NotNull @Min(1) Integer totalQuota,
+        @NotNull @Min(1) Integer discountPercent,
+        @NotNull @Min(0) Long minimumPurchaseAmount,
+        @Min(0) Long maxDiscountAmount,
         @NotBlank String terms
 ) {}

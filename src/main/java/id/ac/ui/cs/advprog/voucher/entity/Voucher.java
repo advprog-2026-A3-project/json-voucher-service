@@ -101,12 +101,12 @@ public class Voucher {
     }
 
     public long previewDiscount(LocalDateTime now, long subtotal){
-        validateEgligible(now, subtotal);
+        validateEligible(now, subtotal);
         return calculateDiscount(subtotal);
     }
 
     public long calculateDiscount(long subtotal){
-        long discount = subtotal * this.discountPercent;
+        long discount = subtotal * (this.discountPercent / 100);
 
         if (this.maxDiscountAmount == null){
             return discount;
@@ -115,7 +115,7 @@ public class Voucher {
     }
 
     public void redeem(LocalDateTime now, long subtotal){
-        validateEgligible(now, subtotal);
+        validateEligible(now, subtotal);
         this.quotaRemaining -= 1;
     }
 
@@ -130,7 +130,7 @@ public class Voucher {
         validateVoucherQuotaAvailable();
     }
 
-    private void validateEgligible(LocalDateTime now, long subtotal){
+    private void validateEligible(LocalDateTime now, long subtotal){
         validateVoucherIsActive();
         validateVoucherHasStarted(now);
         validateVoucherNotExpired(now);

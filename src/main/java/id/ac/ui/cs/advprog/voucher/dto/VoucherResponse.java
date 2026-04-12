@@ -11,6 +11,8 @@ public record VoucherResponse(
         Integer totalQuota,
         Integer quotaRemaining,
         Integer discountPercent,
+        Long minimumPurchaseAmount,
+        Long maxDiscountAmount,
         String terms,
         Boolean active,
         LocalDateTime createdAt
@@ -24,6 +26,8 @@ public record VoucherResponse(
                 voucher.getTotalQuota(),
                 voucher.getQuotaRemaining(),
                 voucher.getDiscountPercent(),
+                voucher.getMinimumPurchaseAmount(),
+                voucher.getMaxDiscountAmount(),
                 voucher.getTerms(),
                 voucher.getActive(),
                 voucher.getCreatedAt()
