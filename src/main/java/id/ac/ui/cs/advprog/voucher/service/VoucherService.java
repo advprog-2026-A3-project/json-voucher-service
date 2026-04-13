@@ -102,4 +102,11 @@ public class VoucherService {
         Voucher voucher = findVoucherByCode(voucherCode);
         return voucher.previewDiscount(LocalDateTime.now(), subtotal);
     }
+
+    @Transactional
+    public Voucher deactivateVoucher(String voucherCode){
+        Voucher voucher = findVoucherByCode(voucherCode);
+        voucher.deactivate();
+        return voucherWriteRepository.save(voucher);
+    }
 }

@@ -7,6 +7,7 @@ import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherResponse;
 import id.ac.ui.cs.advprog.voucher.dto.VoucherResponse;
 import id.ac.ui.cs.advprog.voucher.entity.Voucher;
 import id.ac.ui.cs.advprog.voucher.service.VoucherService;
+import io.micrometer.core.ipc.http.HttpSender.Response;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -106,5 +107,11 @@ public class VoucherController {
         );
 
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("{/{voucherCode}/deactivate")
+    public ResponseEntity<VoucherResponse> deactivateVoucher(@PathVariable String voucherCode){
+        Voucher voucher = voucherService.deactivateVoucher(voucherCode);
+        return ResponseEntity.ok(VoucherResponse.from(voucher));
     }
 }
