@@ -2,6 +2,8 @@ package id.ac.ui.cs.advprog.voucher.controller;
 
 import id.ac.ui.cs.advprog.voucher.dto.CreateVoucherRequest;
 import id.ac.ui.cs.advprog.voucher.dto.UpdateVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherResponse;
 import id.ac.ui.cs.advprog.voucher.dto.VoucherResponse;
 import id.ac.ui.cs.advprog.voucher.entity.Voucher;
 import id.ac.ui.cs.advprog.voucher.service.VoucherService;
@@ -86,5 +88,23 @@ public class VoucherController {
     public ResponseEntity<Void> deleteVoucher(@PathVariable String voucherCode){
         voucherService.deleteVoucher(voucherCode);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<ValidateVoucherResponse> validateVoucher(
+        @Valid @RequestBody ValidateVoucherRequest request
+    ){
+        long discountAmount = voucherService.previewVoucherDiscount(
+            request.voucherCode(),
+            request.subtotal()
+        );
+
+        ValidateVoucherResponse response = new ValidateVoucherResponse(
+            request.voucherCode(),
+            request.subtotal(),
+            discountAmount
+        );
+
+        return ResponseEntity.ok(response);
     }
 }

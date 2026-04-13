@@ -106,7 +106,7 @@ public class Voucher {
     }
 
     public long calculateDiscount(long subtotal){
-        long discount = subtotal * (this.discountPercent / 100);
+        long discount = subtotal * this.discountPercent / 100;
 
         if (this.maxDiscountAmount == null){
             return discount;

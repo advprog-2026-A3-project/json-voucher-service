@@ -2,6 +2,8 @@ package id.ac.ui.cs.advprog.voucher.controller;
 
 import id.ac.ui.cs.advprog.voucher.dto.CreateVoucherRequest;
 import id.ac.ui.cs.advprog.voucher.dto.UpdateVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherResponse;
 import id.ac.ui.cs.advprog.voucher.dto.VoucherResponse;
 import id.ac.ui.cs.advprog.voucher.entity.Voucher;
 import id.ac.ui.cs.advprog.voucher.service.VoucherService;
@@ -217,5 +219,24 @@ class VoucherControllerTest {
 
         assertEquals(204, response.getStatusCode().value());
         verify(voucherService).deleteVoucher("DISC10");
+    }
+
+    @Test
+    void testValidateVoucher(){
+        ValidateVoucherRequest request = new ValidateVoucherRequest(
+                "DISC10",
+                Long.valueOf(200000)
+        );
+
+        when(voucherService.previewVoucherDiscount("DISC10", 200000)).thenReturn(20000L);
+
+        ResponseEntity<ValidateVoucherResponse> response = controller.validateVoucher(request);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals("DISC10", response.getBody().voucherCode());
+        assertEquals(200000, response.getBody().subtotal());
+        assertEquals(20000, response.getBody().discountAmount());
+        verify(voucherService).previewVoucherDiscount("DISC10", 200000);
     }
 }

@@ -96,4 +96,10 @@ public class VoucherService {
             throw new InvalidVoucherPeriodException();
         }
     }
+
+    @Transactional(readOnly = true)
+    public long previewVoucherDiscount(String voucherCode, long subtotal){
+        Voucher voucher = findVoucherByCode(voucherCode);
+        return voucher.previewDiscount(LocalDateTime.now(), subtotal);
+    }
 }

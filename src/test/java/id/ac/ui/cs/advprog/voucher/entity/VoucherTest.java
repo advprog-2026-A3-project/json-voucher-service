@@ -157,7 +157,7 @@ class VoucherTest {
                 LocalDateTime.now().plusDays(1),
                 5,
                 10,
-                Long.valueOf(100_000),
+                Long.valueOf(100000),
                 null,
                 "Terms"
         );
@@ -174,7 +174,7 @@ class VoucherTest {
                 LocalDateTime.now().plusDays(1),
                 5,
                 10,
-                Long.valueOf(100_000),
+                Long.valueOf(100000),
                 null,
                 "Terms"
         );
@@ -209,7 +209,7 @@ class VoucherTest {
                 LocalDateTime.now().plusDays(1),
                 5,
                 10,
-                Long.valueOf(100_000),
+                Long.valueOf(100000),
                 null,
                 "Terms"
         );

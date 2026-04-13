@@ -235,4 +235,25 @@ class VoucherServiceTest {
 
         verify(voucherWriteRepository).delete(voucher);
     }
+
+    @Test
+    void testPreviewVoucherDiscount(){
+        Voucher voucher = new Voucher(
+                "DISC10",
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1),
+                10,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
+                "Terms"
+        );
+
+        when(voucherReadRepository.findByVoucherCode("DISC10")).thenReturn(Optional.of(voucher));
+
+        long discount = voucherService.previewVoucherDiscount("DISC10", 200000);
+        assertEquals(20000, discount);
+        verify(voucherReadRepository).findByVoucherCode("DISC10");
+        verify(voucherWriteRepository, never()).save(any());
+    }
 }
