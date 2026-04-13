@@ -94,8 +94,8 @@ class VoucherServiceTest {
     void testFindAll(){
         Voucher voucher = new Voucher(
                 "DISC10",
-                LocalDateTime.of(2026, 3, 1, 10, 0),
-                LocalDateTime.of(2026, 3, 10, 10, 0),
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1),
                 5,
                 DISCOUNT_PERCENT,
                 MINIMUM_PURCHASE_AMOUNT,
@@ -104,8 +104,8 @@ class VoucherServiceTest {
         );
         Voucher anotherVoucher = new Voucher(
                 "DISC20",
-                LocalDateTime.of(2026, 3, 2, 10, 0),
-                LocalDateTime.of(2026, 3, 11, 10, 0),
+                LocalDateTime.now().minusDays(2),
+                LocalDateTime.now().plusDays(2),
                 3,
                 DISCOUNT_PERCENT,
                 MINIMUM_PURCHASE_AMOUNT,
@@ -304,8 +304,8 @@ class VoucherServiceTest {
 
         Voucher expiredVoucher = new Voucher(
                 "DISC30",
+                LocalDateTime.now().minusDays(3),
                 LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1),
                 10,
                 DISCOUNT_PERCENT,
                 MINIMUM_PURCHASE_AMOUNT,
@@ -317,7 +317,7 @@ class VoucherServiceTest {
                 "DISC40",
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now().plusDays(1),
-                10,
+                1,
                 DISCOUNT_PERCENT,
                 MINIMUM_PURCHASE_AMOUNT,
                 null,
