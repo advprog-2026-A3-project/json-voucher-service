@@ -217,4 +217,21 @@ class VoucherTest {
         voucher.redeem(LocalDateTime.now(), 200_000);
         assertEquals(4, voucher.getQuotaRemaining());
     }
+
+    @Test
+    void testDeactivateVoucher(){
+        Voucher voucher = new Voucher(
+                "DISC10",
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1),
+                5,
+                10,
+                Long.valueOf(100000),
+                null,
+                "Terms"
+        );
+
+        voucher.deactivate();
+        assertFalse(voucher.getActive());
+    }
 }

@@ -239,4 +239,27 @@ class VoucherControllerTest {
         assertEquals(20000, response.getBody().discountAmount());
         verify(voucherService).previewVoucherDiscount("DISC10", 200000);
     }
+
+    @Test
+    void testDeactivateVoucher(){
+        Voucher voucher = new Voucher(
+                "DISC10",
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1),
+                5,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
+                "Terms"
+        );
+        voucher.deactivate();
+        when(voucherService.deactivateVoucher("DISC10")).thenReturn(voucher);
+
+        ResponseEntity<VoucherResponse> response = controller.deactivateVoucher("DISC10");
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertFalse(response.getBody().active());
+        verify(voucherService).deactivateVoucher("DISC10");
+    }
 }
