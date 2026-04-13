@@ -276,4 +276,66 @@ class VoucherServiceTest {
         assertFalse(voucher.getActive());
         verify(voucherWriteRepository).save(voucher);
     }
+
+    @Test
+    void testListVouchersOnlyReturnsPubliclyAvailable(){
+        Voucher availableVoucher = new Voucher(
+                "DISC10",
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1),
+                10,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
+                "Terms"
+        );
+
+        Voucher inactiveVoucher = new Voucher(
+                "DISC20",
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1),
+                10,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
+                "Terms"
+        );
+        inactiveVoucher.deactivate();
+
+        Voucher expiredVoucher = new Voucher(
+                "DISC30",
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1),
+                10,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
+                "Terms"
+        );
+
+        Voucher exhaustedVoucher = new Voucher(
+                "DISC40",
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1),
+                10,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
+                "Terms"
+        );
+        exhaustedVoucher.checkout(LocalDateTime.now());
+
+        when(voucherReadRepository.findAllByCreatedAtDesc()).thenReturn(List.of(
+            availableVoucher,
+            inactiveVoucher,
+            expiredVoucher,
+            exhaustedVoucher
+        ));
+
+        List<Voucher> vouchers = voucherService.listVouchers();
+
+        assertEquals(1, vouchers.size());
+        assertSame(availableVoucher, vouchers.get(0));
+        verify(voucherReadRepository).findAllByCreatedAtDesc();
+    }
 }

@@ -71,7 +71,9 @@ public class VoucherService {
 
     @Transactional(readOnly = true)
     public List<Voucher> listVouchers(){
-        return voucherReadRepository.findAllByCreatedAtDesc();
+        LocalDateTime now = LocalDateTime.now();
+        return voucherReadRepository.findAllByCreatedAtDesc().stream()
+                .filter(voucher -> voucher.isPubliclyAvailable(now)).toList();
     }
 
     @Transactional

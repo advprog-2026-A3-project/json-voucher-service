@@ -234,4 +234,53 @@ class VoucherTest {
         voucher.deactivate();
         assertFalse(voucher.getActive());
     }
+
+    @Test
+    void testIsPubliclyAvailableIfVoucherMeetsAllConditions(){
+        Voucher voucher = new Voucher(
+                "DISC10",
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1),
+                5,
+                10,
+                Long.valueOf(100000),
+                null,
+                "Terms"
+        );
+
+        assertTrue(voucher.isPubliclyAvailable(LocalDateTime.now()));
+    }
+
+    @Test
+    void testIsPubliclyAvailableIfVoucherInactive(){
+        Voucher voucher = new Voucher(
+                "DISC10",
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1),
+                5,
+                10,
+                Long.valueOf(100000),
+                null,
+                "Terms"
+        );
+
+        voucher.deactivate();
+        assertFalse(voucher.isPubliclyAvailable(LocalDateTime.now()));
+    }
+
+    @Test
+    void testIsPubliclyAvailableIfVoucherExpired(){
+        Voucher voucher = new Voucher(
+            "DISC10",
+            LocalDateTime.now().minusDays(3),
+            LocalDateTime.now().minusDays(1),
+            5,
+            10,
+            Long.valueOf(100000),
+            null,
+            "Terms"
+        );
+
+        assertFalse(voucher.isPubliclyAvailable(LocalDateTime.now()));
+    }
 }

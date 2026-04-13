@@ -164,4 +164,11 @@ public class Voucher {
             throw new VoucherQuotaExhaustedException();
         }
     }
+
+    public boolean isPubliclyAvailable(LocalDateTime now){
+        return Boolean.TRUE.equals(this.active)
+                && !now.isBefore(this.validFrom)
+                && !now.isAfter(this.validUntil)
+                && this.quotaRemaining > 0;
+    }
 }
