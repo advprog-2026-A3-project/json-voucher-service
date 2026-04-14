@@ -265,7 +265,7 @@ class VoucherControllerTest {
         verify(voucherService).deactivateVoucher("DISC10");
     }
 
-   @Test
+    @Test
     void testRedeemVoucher(){
         RedeemVoucherRequest request = new RedeemVoucherRequest(Long.valueOf(200000));
 

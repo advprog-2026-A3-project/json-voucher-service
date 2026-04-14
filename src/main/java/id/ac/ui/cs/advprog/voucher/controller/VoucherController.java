@@ -1,6 +1,8 @@
 package id.ac.ui.cs.advprog.voucher.controller;
 
 import id.ac.ui.cs.advprog.voucher.dto.CreateVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.RedeemVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.RedeemVoucherResponse;
 import id.ac.ui.cs.advprog.voucher.dto.UpdateVoucherRequest;
 import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherRequest;
 import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherResponse;
@@ -47,7 +49,7 @@ public class VoucherController {
 
     @GetMapping
     public ResponseEntity<List<VoucherResponse>> getAllVouchers(){
-         List<VoucherResponse> vouchers = voucherService.listVouchers().stream().map(VoucherResponse::from).toList();
+        List<VoucherResponse> vouchers = voucherService.listVouchers().stream().map(VoucherResponse::from).toList();
         return ResponseEntity.ok(vouchers);
     }
 
@@ -92,17 +94,17 @@ public class VoucherController {
 
     @PostMapping("/validate")
     public ResponseEntity<ValidateVoucherResponse> validateVoucher(
-        @Valid @RequestBody ValidateVoucherRequest request
+            @Valid @RequestBody ValidateVoucherRequest request
     ){
         long discountAmount = voucherService.previewVoucherDiscount(
-            request.voucherCode(),
-            request.subtotal()
+                request.voucherCode(),
+                request.subtotal()
         );
 
         ValidateVoucherResponse response = new ValidateVoucherResponse(
-            request.voucherCode(),
-            request.subtotal(),
-            discountAmount
+                request.voucherCode(),
+                request.subtotal(),
+                discountAmount
         );
 
         return ResponseEntity.ok(response);
@@ -112,5 +114,21 @@ public class VoucherController {
     public ResponseEntity<VoucherResponse> deactivateVoucher(@PathVariable String voucherCode){
         Voucher voucher = voucherService.deactivateVoucher(voucherCode);
         return ResponseEntity.ok(VoucherResponse.from(voucher));
+    }
+
+    @PostMapping("/{voucherCode}/redeem")
+    public ResponseEntity<RedeemVoucherResponse> redeemVoucher(
+            @PathVariable String voucherCode,
+            @Valid @RequestBody RedeemVoucherRequest request
+    ){
+        Voucher voucher = voucherService.redeemVoucher(voucherCode, request.subtotal());
+
+        RedeemVoucherResponse response = new RedeemVoucherResponse(
+                voucher.getVoucherCode(),
+                request.subtotal(),
+                voucher.getQuotaRemaining()
+        );
+
+        return ResponseEntity.ok(response);
     }
 }
