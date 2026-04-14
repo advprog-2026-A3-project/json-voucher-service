@@ -1,6 +1,8 @@
 package id.ac.ui.cs.advprog.voucher.controller;
 
 import id.ac.ui.cs.advprog.voucher.dto.CreateVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.RedeemVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.RedeemVoucherResponse;
 import id.ac.ui.cs.advprog.voucher.dto.UpdateVoucherRequest;
 import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherRequest;
 import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherResponse;
@@ -261,5 +263,33 @@ class VoucherControllerTest {
         assertNotNull(response.getBody());
         assertFalse(response.getBody().active());
         verify(voucherService).deactivateVoucher("DISC10");
+    }
+
+   @Test
+    void testRedeemVoucher(){
+        RedeemVoucherRequest request = new RedeemVoucherRequest(Long.valueOf(200000));
+
+        Voucher voucher = new Voucher(
+                "DISC10",
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1),
+                5,
+                10,
+                Long.valueOf(100000),
+                null,
+                "Terms"
+        );
+        voucher.redeem(LocalDateTime.now(), 200000);
+
+        when(voucherService.redeemVoucher("DISC10", 200000)).thenReturn(voucher);
+
+        ResponseEntity<RedeemVoucherResponse> response = controller.redeemVoucher("DISC10", request);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals("DISC10", response.getBody().voucherCode());
+        assertEquals(200000, response.getBody().subtotal());
+        assertEquals(4, response.getBody().quotaRemaining());
+        verify(voucherService).redeemVoucher("DISC10", 200000);
     }
 }
