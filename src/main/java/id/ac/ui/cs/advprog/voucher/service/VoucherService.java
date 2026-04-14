@@ -111,4 +111,11 @@ public class VoucherService {
         voucher.deactivate();
         return voucherWriteRepository.save(voucher);
     }
+
+    @Transactional
+    public Voucher redeemVoucher(String voucherCode, long subtotal){
+        Voucher voucher = findVoucherByCode(voucherCode);
+        voucher.redeem(LocalDateTime.now(), subtotal);
+        return voucherWriteRepository.save(voucher);
+    }
 }
