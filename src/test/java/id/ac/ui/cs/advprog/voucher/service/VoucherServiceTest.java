@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.voucher.service;
 
 import id.ac.ui.cs.advprog.voucher.entity.Voucher;
 import id.ac.ui.cs.advprog.voucher.exception.InvalidVoucherPeriodException;
+import id.ac.ui.cs.advprog.voucher.exception.InvalidVoucherStateException;
 import id.ac.ui.cs.advprog.voucher.exception.VoucherNotFoundException;
 import id.ac.ui.cs.advprog.voucher.repository.VoucherReadRepository;
 import id.ac.ui.cs.advprog.voucher.repository.VoucherWriteRepository;
@@ -337,5 +338,49 @@ class VoucherServiceTest {
         assertEquals(1, vouchers.size());
         assertSame(availableVoucher, vouchers.get(0));
         verify(voucherReadRepository).findAllByCreatedAtDesc();
+    }
+
+    @Test
+    void testRedeemVoucher(){
+        Voucher voucher = new Voucher(
+            "DISC10",
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().plusDays(1),
+            5,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
+        );
+
+        when(voucherReadRepository.findByVoucherCode("DISC10")).thenReturn(Optional.of(voucher));
+        when(voucherWriteRepository.save(voucher)).thenReturn(voucher);
+
+        Voucher redeemedVoucher = voucherService.redeemVoucher("DISC10", 200000);
+        assertEquals(4, redeemedVoucher.getQuotaRemaining());
+        verify(voucherReadRepository).findByVoucherCode("DISC10");
+        verify(voucherWriteRepository).save(voucher);
+    }
+
+    @Test
+    void testRedeemVoucherIfSubtotalBelowMinimum(){
+        Voucher voucher = new Voucher(
+                "DISC10",
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1),
+                5,
+                10,
+                Long.valueOf(100000),
+                null,
+                "Terms"
+        );
+
+        when(voucherReadRepository.findByVoucherCode("DISC10")).thenReturn(Optional.of(voucher));
+        assertThrows(InvalidVoucherStateException.class, () ->
+                voucherService.redeemVoucher("DISC10", 50000)
+        );
+
+        verify(voucherReadRepository).findByVoucherCode("DISC10");
+        verify(voucherWriteRepository, never()).save(any());
     }
 }
