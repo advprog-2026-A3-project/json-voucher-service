@@ -76,13 +76,6 @@ public class VoucherService {
                 .filter(voucher -> voucher.isPubliclyAvailable(now)).toList();
     }
 
-    @Transactional
-    public Voucher checkoutVoucher(String voucherCode){
-        Voucher voucher = findVoucherByCode(voucherCode);
-        voucher.checkout(LocalDateTime.now());
-        return voucherWriteRepository.save(voucher);
-    }
-
     private Voucher findVoucherByCode(String voucherCode){
         return voucherReadRepository.findByVoucherCode(voucherCode)
                 .orElseThrow(VoucherNotFoundException::new);
