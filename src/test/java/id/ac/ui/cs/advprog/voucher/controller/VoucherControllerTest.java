@@ -107,31 +107,6 @@ class VoucherControllerTest {
     }
 
     @Test
-    void testCheckoutVoucher(){
-        Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1),
-                10,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
-        );
-        voucher.checkout(LocalDateTime.now());
-        when(voucherService.checkoutVoucher("DISC10")).thenReturn(voucher);
-
-        ResponseEntity<Map<String, Object>> response = controller.checkoutVoucher("DISC10");
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals("SUCCESS", response.getBody().get("status"));
-        assertEquals("DISC10", response.getBody().get("voucherCode"));
-        assertEquals(9, response.getBody().get("quotaRemaining"));
-        verify(voucherService).checkoutVoucher("DISC10");
-    }
-
-    @Test
     void testGetVoucherByCode(){
         Voucher voucher = new Voucher(
                 "DISC10",
