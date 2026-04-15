@@ -2,7 +2,12 @@ package id.ac.ui.cs.advprog.voucher.entity;
 
 import id.ac.ui.cs.advprog.voucher.exception.InvalidVoucherStateException;
 import id.ac.ui.cs.advprog.voucher.exception.VoucherQuotaExhaustedException;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,14 +56,14 @@ public class Voucher {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public Voucher(
-            String voucherCode,
-            LocalDateTime validFrom,
-            LocalDateTime validUntil,
-            Integer totalQuota,
-            Integer discountPercent,
-            Long minimumPurchaseAmount,
-            Long maxDiscountAmount,
-            String terms
+        String voucherCode,
+        LocalDateTime validFrom,
+        LocalDateTime validUntil,
+        Integer totalQuota,
+        Integer discountPercent,
+        Long minimumPurchaseAmount,
+        Long maxDiscountAmount,
+        String terms
     ){
         this.voucherCode = voucherCode;
         this.validFrom = validFrom;
@@ -155,8 +160,8 @@ public class Voucher {
 
     public boolean isPubliclyAvailable(LocalDateTime now){
         return Boolean.TRUE.equals(this.active)
-                && !now.isBefore(this.validFrom)
-                && !now.isAfter(this.validUntil)
-                && this.quotaRemaining > 0;
+            && !now.isBefore(this.validFrom)
+            && !now.isAfter(this.validUntil)
+            && this.quotaRemaining > 0;
     }
 }

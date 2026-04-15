@@ -16,8 +16,8 @@ public class VoucherService {
     private final VoucherWriteRepository voucherWriteRepository;
 
     public VoucherService(
-            VoucherReadRepository voucherReadRepository,
-            VoucherWriteRepository voucherWriteRepository
+        VoucherReadRepository voucherReadRepository,
+        VoucherWriteRepository voucherWriteRepository
     ){
         this.voucherReadRepository = voucherReadRepository;
         this.voucherWriteRepository = voucherWriteRepository;
@@ -25,40 +25,50 @@ public class VoucherService {
 
     @Transactional
     public Voucher createVoucher(
-            String voucherCode, LocalDateTime validFrom, LocalDateTime validUntil, 
-            Integer totalQuota, Integer discountPercent, Long minimumPurchaseAmount,
-            Long maxDiscountAmount, String terms
+        String voucherCode,
+        LocalDateTime validFrom,
+        LocalDateTime validUntil,
+        Integer totalQuota,
+        Integer discountPercent,
+        Long minimumPurchaseAmount,
+        Long maxDiscountAmount,
+        String terms
     ){
         validateVoucherPeriod(validFrom, validUntil);
         Voucher voucher = new Voucher(
-                voucherCode,
-                validFrom,
-                validUntil,
-                totalQuota,
-                discountPercent,
-                minimumPurchaseAmount,
-                maxDiscountAmount,
-                terms
+            voucherCode,
+            validFrom,
+            validUntil,
+            totalQuota,
+            discountPercent,
+            minimumPurchaseAmount,
+            maxDiscountAmount,
+            terms
         );
         return voucherWriteRepository.save(voucher);
     }
 
     @Transactional
     public Voucher updateVoucher(
-        String voucherCode, LocalDateTime validFrom, LocalDateTime validUntil,
-        Integer totalQuota, Integer discountPercent, Long minimumPurchaseAmount,
-        Long maxDiscountAmount, String terms
+        String voucherCode,
+        LocalDateTime validFrom,
+        LocalDateTime validUntil,
+        Integer totalQuota,
+        Integer discountPercent,
+        Long minimumPurchaseAmount,
+        Long maxDiscountAmount,
+        String terms
     ){
         validateVoucherPeriod(validFrom, validUntil);
         Voucher voucher = findVoucherByCode(voucherCode);
         voucher.updateDetails(
-                validFrom,
-                validUntil,
-                totalQuota,
-                discountPercent,
-                minimumPurchaseAmount,
-                maxDiscountAmount,
-                terms
+            validFrom,
+            validUntil,
+            totalQuota,
+            discountPercent,
+            minimumPurchaseAmount,
+            maxDiscountAmount,
+            terms
         );
         return voucherWriteRepository.save(voucher);
     }
@@ -73,12 +83,13 @@ public class VoucherService {
     public List<Voucher> listVouchers(){
         LocalDateTime now = LocalDateTime.now();
         return voucherReadRepository.findAllByCreatedAtDesc().stream()
-                .filter(voucher -> voucher.isPubliclyAvailable(now)).toList();
+            .filter(voucher -> voucher.isPubliclyAvailable(now))
+            .toList();
     }
 
     private Voucher findVoucherByCode(String voucherCode){
         return voucherReadRepository.findByVoucherCode(voucherCode)
-                .orElseThrow(VoucherNotFoundException::new);
+            .orElseThrow(VoucherNotFoundException::new);
     }
 
     @Transactional(readOnly = true)

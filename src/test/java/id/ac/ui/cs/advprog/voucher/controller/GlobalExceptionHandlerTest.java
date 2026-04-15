@@ -17,7 +17,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void testHandleVoucherNotFound(){
         ResponseEntity<ApiErrorResponse> response =
-                handler.handleVoucherNotFound(new VoucherNotFoundException());
+            handler.handleVoucherNotFound(new VoucherNotFoundException());
 
         assertEquals(404, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -28,7 +28,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void testHandleInvalidVoucherState(){
         ResponseEntity<ApiErrorResponse> response =
-                handler.handleInvalidVoucherState(new InvalidVoucherStateException("voucher is inactive"));
+            handler.handleInvalidVoucherState(new InvalidVoucherStateException("voucher is inactive"));
 
         assertEquals(400, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -39,7 +39,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void testHandleInvalidVoucherPeriod(){
         ResponseEntity<ApiErrorResponse> response =
-                handler.handleInvalidVoucherPeriod(new InvalidVoucherPeriodException());
+            handler.handleInvalidVoucherPeriod(new InvalidVoucherPeriodException());
 
         assertEquals(400, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -50,7 +50,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void testHandleVoucherQuotaExhausted(){
         ResponseEntity<ApiErrorResponse> response =
-                handler.handleVoucherQuotaExhausted(new VoucherQuotaExhaustedException());
+            handler.handleVoucherQuotaExhausted(new VoucherQuotaExhaustedException());
 
         assertEquals(409, response.getStatusCode().value());
         assertNotNull(response.getBody());

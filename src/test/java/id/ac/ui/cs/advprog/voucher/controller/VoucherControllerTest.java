@@ -9,17 +9,20 @@ import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherResponse;
 import id.ac.ui.cs.advprog.voucher.dto.VoucherResponse;
 import id.ac.ui.cs.advprog.voucher.entity.Voucher;
 import id.ac.ui.cs.advprog.voucher.service.VoucherService;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class VoucherControllerTest {
@@ -35,34 +38,34 @@ class VoucherControllerTest {
     @Test
     void testCreateVoucher(){
         CreateVoucherRequest request = new CreateVoucherRequest(
-                "DISC10",
-                LocalDateTime.of(2026, 3, 1, 10, 0),
-                LocalDateTime.of(2026, 3, 10, 10, 0),
-                10,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.of(2026, 3, 1, 10, 0),
+            LocalDateTime.of(2026, 3, 10, 10, 0),
+            10,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
         );
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.of(2026, 3, 1, 10, 0),
-                LocalDateTime.of(2026, 3, 10, 10, 0),
-                10,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.of(2026, 3, 1, 10, 0),
+            LocalDateTime.of(2026, 3, 10, 10, 0),
+            10,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
         );
         when(voucherService.createVoucher(
-                request.voucherCode(),
-                request.validFrom(),
-                request.validUntil(),
-                request.totalQuota(),
-                request.discountPercent(),
-                request.minimumPurchaseAmount(),
-                request.maxDiscountAmount(),
-                request.terms()
+            request.voucherCode(),
+            request.validFrom(),
+            request.validUntil(),
+            request.totalQuota(),
+            request.discountPercent(),
+            request.minimumPurchaseAmount(),
+            request.maxDiscountAmount(),
+            request.terms()
         )).thenReturn(voucher);
 
         ResponseEntity<VoucherResponse> response = controller.createVoucher(request);
@@ -72,28 +75,28 @@ class VoucherControllerTest {
         assertEquals("DISC10", response.getBody().voucherCode());
         assertEquals(10, response.getBody().quotaRemaining());
         verify(voucherService).createVoucher(
-                request.voucherCode(),
-                request.validFrom(),
-                request.validUntil(),
-                request.totalQuota(),
-                request.discountPercent(),
-                request.minimumPurchaseAmount(),
-                request.maxDiscountAmount(),
-                request.terms()
+            request.voucherCode(),
+            request.validFrom(),
+            request.validUntil(),
+            request.totalQuota(),
+            request.discountPercent(),
+            request.minimumPurchaseAmount(),
+            request.maxDiscountAmount(),
+            request.terms()
         );
     }
 
     @Test
     void testGetAllVouchers(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.of(2026, 3, 1, 10, 0),
-                LocalDateTime.of(2026, 3, 10, 10, 0),
-                10,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.of(2026, 3, 1, 10, 0),
+            LocalDateTime.of(2026, 3, 10, 10, 0),
+            10,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
         );
         when(voucherService.listVouchers()).thenReturn(List.of(voucher));
 
@@ -109,14 +112,14 @@ class VoucherControllerTest {
     @Test
     void testGetVoucherByCode(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.of(2026, 3, 1, 10, 0),
-                LocalDateTime.of(2026, 3, 10, 10, 0),
-                10,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.of(2026, 3, 1, 10, 0),
+            LocalDateTime.of(2026, 3, 10, 10, 0),
+            10,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
         );
         when(voucherService.getVoucherByCode("DISC10")).thenReturn(voucher);
 
@@ -131,45 +134,45 @@ class VoucherControllerTest {
     @Test
     void testUpdateVoucher(){
         UpdateVoucherRequest request = new UpdateVoucherRequest(
-                LocalDateTime.of(2026, 3, 2, 10, 0),
-                LocalDateTime.of(2026, 3, 12, 10, 0),
-                15,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Updated terms"
+            LocalDateTime.of(2026, 3, 2, 10, 0),
+            LocalDateTime.of(2026, 3, 12, 10, 0),
+            15,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Updated terms"
         );
 
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.of(2026, 3, 1, 10, 0),
-                LocalDateTime.of(2026, 3, 10, 10, 0),
-                10,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.of(2026, 3, 1, 10, 0),
+            LocalDateTime.of(2026, 3, 10, 10, 0),
+            10,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
         );
 
         voucher.updateDetails(
-                request.validFrom(),
-                request.validUntil(),
-                request.totalQuota(),
-                voucher.getDiscountPercent(),
-                voucher.getMinimumPurchaseAmount(),
-                voucher.getMaxDiscountAmount(),
-                request.terms()
+            request.validFrom(),
+            request.validUntil(),
+            request.totalQuota(),
+            voucher.getDiscountPercent(),
+            voucher.getMinimumPurchaseAmount(),
+            voucher.getMaxDiscountAmount(),
+            request.terms()
         );
 
         when(voucherService.updateVoucher(
-                "DISC10",
-                request.validFrom(),
-                request.validUntil(),
-                request.totalQuota(),
-                request.discountPercent(),
-                request.minimumPurchaseAmount(),
-                request.maxDiscountAmount(),
-                request.terms()
+            "DISC10",
+            request.validFrom(),
+            request.validUntil(),
+            request.totalQuota(),
+            request.discountPercent(),
+            request.minimumPurchaseAmount(),
+            request.maxDiscountAmount(),
+            request.terms()
         )).thenReturn(voucher);
 
         ResponseEntity<VoucherResponse> response = controller.updateVoucher("DISC10", request);
@@ -179,14 +182,14 @@ class VoucherControllerTest {
         assertEquals(15, response.getBody().totalQuota());
         assertEquals("Updated terms", response.getBody().terms());
         verify(voucherService).updateVoucher(
-                "DISC10",
-                request.validFrom(),
-                request.validUntil(),
-                request.totalQuota(),
-                request.discountPercent(),
-                request.minimumPurchaseAmount(),
-                request.maxDiscountAmount(),
-                request.terms()
+            "DISC10",
+            request.validFrom(),
+            request.validUntil(),
+            request.totalQuota(),
+            request.discountPercent(),
+            request.minimumPurchaseAmount(),
+            request.maxDiscountAmount(),
+            request.terms()
         );
     }
 
@@ -201,8 +204,8 @@ class VoucherControllerTest {
     @Test
     void testValidateVoucher(){
         ValidateVoucherRequest request = new ValidateVoucherRequest(
-                "DISC10",
-                Long.valueOf(200000)
+            "DISC10",
+            Long.valueOf(200000)
         );
 
         when(voucherService.previewVoucherDiscount("DISC10", 200000)).thenReturn(20000L);
@@ -220,14 +223,14 @@ class VoucherControllerTest {
     @Test
     void testDeactivateVoucher(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1),
-                5,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().plusDays(1),
+            5,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
         );
         voucher.deactivate();
         when(voucherService.deactivateVoucher("DISC10")).thenReturn(voucher);
@@ -245,14 +248,14 @@ class VoucherControllerTest {
         RedeemVoucherRequest request = new RedeemVoucherRequest(Long.valueOf(200000));
 
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1),
-                5,
-                10,
-                Long.valueOf(100000),
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().plusDays(1),
+            5,
+            10,
+            Long.valueOf(100000),
+            null,
+            "Terms"
         );
         voucher.redeem(LocalDateTime.now(), 200000);
 

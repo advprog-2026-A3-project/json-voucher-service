@@ -2,10 +2,15 @@ package id.ac.ui.cs.advprog.voucher.entity;
 
 import id.ac.ui.cs.advprog.voucher.exception.InvalidVoucherStateException;
 import id.ac.ui.cs.advprog.voucher.exception.VoucherQuotaExhaustedException;
-import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class VoucherTest {
     private static final int DISCOUNT_PERCENT = 10;
@@ -14,14 +19,14 @@ class VoucherTest {
     @Test
     void testRedeem(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.of(2026, 3, 1, 10, 0),
-                LocalDateTime.of(2026, 3, 10, 10, 0),
-                3,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.of(2026, 3, 1, 10, 0),
+            LocalDateTime.of(2026, 3, 10, 10, 0),
+            3,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
         );
 
         voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000);
@@ -31,14 +36,14 @@ class VoucherTest {
     @Test
     void testRedeemIfVoucherHasNotStarted(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.of(2026, 3, 10, 10, 0),
-                LocalDateTime.of(2026, 3, 20, 10, 0),
-                3,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.of(2026, 3, 10, 10, 0),
+            LocalDateTime.of(2026, 3, 20, 10, 0),
+            3,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
         );
 
         try {
@@ -52,14 +57,14 @@ class VoucherTest {
     @Test
     void testRedeemIfVoucherExpired(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.of(2026, 3, 1, 10, 0),
-                LocalDateTime.of(2026, 3, 10, 10, 0),
-                3,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.of(2026, 3, 1, 10, 0),
+            LocalDateTime.of(2026, 3, 10, 10, 0),
+            3,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
         );
 
         try {
@@ -73,14 +78,14 @@ class VoucherTest {
     @Test
     void testRedeemIfQuotaExhausted(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.of(2026, 3, 1, 10, 0),
-                LocalDateTime.of(2026, 3, 10, 10, 0),
-                1,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.of(2026, 3, 1, 10, 0),
+            LocalDateTime.of(2026, 3, 10, 10, 0),
+            1,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
         );
 
         voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000);
@@ -95,25 +100,25 @@ class VoucherTest {
     @Test
     void testUpdateDetails(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.of(2026, 3, 1, 10, 0),
-                LocalDateTime.of(2026, 3, 10, 10, 0),
-                5,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.of(2026, 3, 1, 10, 0),
+            LocalDateTime.of(2026, 3, 10, 10, 0),
+            5,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
         );
 
         voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000);
         voucher.updateDetails(
-                LocalDateTime.of(2026, 3, 2, 10, 0),
-                LocalDateTime.of(2026, 3, 12, 10, 0),
-                8,
-                voucher.getDiscountPercent(),
-                voucher.getMinimumPurchaseAmount(),
-                voucher.getMaxDiscountAmount(),
-                "Updated terms"
+            LocalDateTime.of(2026, 3, 2, 10, 0),
+            LocalDateTime.of(2026, 3, 12, 10, 0),
+            8,
+            voucher.getDiscountPercent(),
+            voucher.getMinimumPurchaseAmount(),
+            voucher.getMaxDiscountAmount(),
+            "Updated terms"
         );
         assertEquals(8, voucher.getTotalQuota());
         assertEquals(7, voucher.getQuotaRemaining());
@@ -123,14 +128,14 @@ class VoucherTest {
     @Test
     void testRedeemIfVoucherInactive(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.of(2026, 3, 1, 10, 0),
-                LocalDateTime.of(2026, 3, 10, 10, 0),
-                3,
-                DISCOUNT_PERCENT,
-                MINIMUM_PURCHASE_AMOUNT,
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.of(2026, 3, 1, 10, 0),
+            LocalDateTime.of(2026, 3, 10, 10, 0),
+            3,
+            DISCOUNT_PERCENT,
+            MINIMUM_PURCHASE_AMOUNT,
+            null,
+            "Terms"
         );
 
         try {
@@ -152,14 +157,14 @@ class VoucherTest {
     @Test
     void testPreviewDiscountSuccess(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1),
-                5,
-                10,
-                Long.valueOf(100000),
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().plusDays(1),
+            5,
+            10,
+            Long.valueOf(100000),
+            null,
+            "Terms"
         );
 
         long discount = voucher.previewDiscount(LocalDateTime.now(), 200_000);
@@ -169,32 +174,32 @@ class VoucherTest {
     @Test
     void testPreviewDiscountIfSubtotalBelowMinimum(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1),
-                5,
-                10,
-                Long.valueOf(100000),
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().plusDays(1),
+            5,
+            10,
+            Long.valueOf(100000),
+            null,
+            "Terms"
         );
 
         assertThrows(InvalidVoucherStateException.class, () ->
-                voucher.previewDiscount(LocalDateTime.now(), 50_000)
+            voucher.previewDiscount(LocalDateTime.now(), 50_000)
         );
     }
 
     @Test
     void testCalculateDiscountRespectsMaxDiscountAmount(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1),
-                5,
-                20,
-                Long.valueOf(0),
-                Long.valueOf(25_000),
-                "Terms"
+            "DISC10",
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().plusDays(1),
+            5,
+            20,
+            Long.valueOf(0),
+            Long.valueOf(25_000),
+            "Terms"
         );
 
         long discount = voucher.previewDiscount(LocalDateTime.now(), 200_000);
@@ -204,14 +209,14 @@ class VoucherTest {
     @Test
     void testRedeemReducesQuotaAfterValidSubtotal(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1),
-                5,
-                10,
-                Long.valueOf(100000),
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().plusDays(1),
+            5,
+            10,
+            Long.valueOf(100000),
+            null,
+            "Terms"
         );
 
         voucher.redeem(LocalDateTime.now(), 200_000);
@@ -221,14 +226,14 @@ class VoucherTest {
     @Test
     void testDeactivateVoucher(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1),
-                5,
-                10,
-                Long.valueOf(100000),
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().plusDays(1),
+            5,
+            10,
+            Long.valueOf(100000),
+            null,
+            "Terms"
         );
 
         voucher.deactivate();
@@ -238,14 +243,14 @@ class VoucherTest {
     @Test
     void testIsPubliclyAvailableIfVoucherMeetsAllConditions(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1),
-                5,
-                10,
-                Long.valueOf(100000),
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().plusDays(1),
+            5,
+            10,
+            Long.valueOf(100000),
+            null,
+            "Terms"
         );
 
         assertTrue(voucher.isPubliclyAvailable(LocalDateTime.now()));
@@ -254,14 +259,14 @@ class VoucherTest {
     @Test
     void testIsPubliclyAvailableIfVoucherInactive(){
         Voucher voucher = new Voucher(
-                "DISC10",
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1),
-                5,
-                10,
-                Long.valueOf(100000),
-                null,
-                "Terms"
+            "DISC10",
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().plusDays(1),
+            5,
+            10,
+            Long.valueOf(100000),
+            null,
+            "Terms"
         );
 
         voucher.deactivate();

@@ -30,25 +30,27 @@ public class VoucherController {
     public VoucherController(VoucherService voucherService){
         this.voucherService = voucherService;
     }
-    
+
     @PostMapping
     public ResponseEntity<VoucherResponse> createVoucher(@Valid @RequestBody CreateVoucherRequest request){
         Voucher voucherCreated = voucherService.createVoucher(
-                request.voucherCode(),
-                request.validFrom(),
-                request.validUntil(),
-                request.totalQuota(),
-                request.discountPercent(),
-                request.minimumPurchaseAmount(),
-                request.maxDiscountAmount(),
-                request.terms()
+            request.voucherCode(),
+            request.validFrom(),
+            request.validUntil(),
+            request.totalQuota(),
+            request.discountPercent(),
+            request.minimumPurchaseAmount(),
+            request.maxDiscountAmount(),
+            request.terms()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(VoucherResponse.from(voucherCreated));
     }
 
     @GetMapping
     public ResponseEntity<List<VoucherResponse>> getAllVouchers(){
-        List<VoucherResponse> vouchers = voucherService.listVouchers().stream().map(VoucherResponse::from).toList();
+        List<VoucherResponse> vouchers = voucherService.listVouchers().stream()
+            .map(VoucherResponse::from)
+            .toList();
         return ResponseEntity.ok(vouchers);
     }
 
@@ -59,18 +61,19 @@ public class VoucherController {
     }
 
     @PutMapping("/{voucherCode}")
-    public ResponseEntity<VoucherResponse> updateVoucher(@PathVariable String voucherCode,
-            @Valid @RequestBody UpdateVoucherRequest request
+    public ResponseEntity<VoucherResponse> updateVoucher(
+        @PathVariable String voucherCode,
+        @Valid @RequestBody UpdateVoucherRequest request
     ){
         Voucher updatedVoucher = voucherService.updateVoucher(
-                voucherCode,
-                request.validFrom(),
-                request.validUntil(),
-                request.totalQuota(),
-                request.discountPercent(),
-                request.minimumPurchaseAmount(),
-                request.maxDiscountAmount(),
-                request.terms()
+            voucherCode,
+            request.validFrom(),
+            request.validUntil(),
+            request.totalQuota(),
+            request.discountPercent(),
+            request.minimumPurchaseAmount(),
+            request.maxDiscountAmount(),
+            request.terms()
         );
         return ResponseEntity.ok(VoucherResponse.from(updatedVoucher));
     }
@@ -83,17 +86,17 @@ public class VoucherController {
 
     @PostMapping("/validate")
     public ResponseEntity<ValidateVoucherResponse> validateVoucher(
-            @Valid @RequestBody ValidateVoucherRequest request
+        @Valid @RequestBody ValidateVoucherRequest request
     ){
         long discountAmount = voucherService.previewVoucherDiscount(
-                request.voucherCode(),
-                request.subtotal()
+            request.voucherCode(),
+            request.subtotal()
         );
 
         ValidateVoucherResponse response = new ValidateVoucherResponse(
-                request.voucherCode(),
-                request.subtotal(),
-                discountAmount
+            request.voucherCode(),
+            request.subtotal(),
+            discountAmount
         );
 
         return ResponseEntity.ok(response);
@@ -107,15 +110,15 @@ public class VoucherController {
 
     @PostMapping("/{voucherCode}/redeem")
     public ResponseEntity<RedeemVoucherResponse> redeemVoucher(
-            @PathVariable String voucherCode,
-            @Valid @RequestBody RedeemVoucherRequest request
+        @PathVariable String voucherCode,
+        @Valid @RequestBody RedeemVoucherRequest request
     ){
         Voucher voucher = voucherService.redeemVoucher(voucherCode, request.subtotal());
 
         RedeemVoucherResponse response = new RedeemVoucherResponse(
-                voucher.getVoucherCode(),
-                request.subtotal(),
-                voucher.getQuotaRemaining()
+            voucher.getVoucherCode(),
+            request.subtotal(),
+            voucher.getQuotaRemaining()
         );
 
         return ResponseEntity.ok(response);
