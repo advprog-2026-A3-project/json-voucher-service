@@ -7,9 +7,16 @@ import id.ac.ui.cs.advprog.voucher.exception.InvalidVoucherStateException;
 import id.ac.ui.cs.advprog.voucher.exception.VoucherNotFoundException;
 import id.ac.ui.cs.advprog.voucher.exception.VoucherQuotaExhaustedException;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.MutablePropertyValues;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 class GlobalExceptionHandlerTest {
     private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
@@ -56,5 +63,27 @@ class GlobalExceptionHandlerTest {
         assertNotNull(response.getBody());
         assertEquals("ERROR", response.getBody().status());
         assertEquals("voucher quota exhausted", response.getBody().message());
+    }
+
+    @Test
+    void testHandleValidationFailure(){
+        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(
+            new MutablePropertyValues(),
+            "request"
+        );
+        MethodParameter methodParameter = mock(MethodParameter.class);
+
+        bindingResult.addError(new FieldError("request", "voucherCode", "must not be blank"));
+
+        MethodArgumentNotValidException exception = new MethodArgumentNotValidException(
+            methodParameter,
+            bindingResult
+        );
+        ResponseEntity<ApiErrorResponse> response = handler.handleValidationFailure(exception);
+
+        assertEquals(400, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals("ERROR", response.getBody().status());
+        assertEquals("must not be blank", response.getBody().message());
     }
 }

@@ -98,7 +98,7 @@ public class VoucherService {
     }
 
     private void validateVoucherPeriod(LocalDateTime validFrom, LocalDateTime validUntil){
-        if (validUntil.isBefore(validFrom)){
+        if (!validUntil.isAfter(validFrom)){
             throw new InvalidVoucherPeriodException();
         }
     }

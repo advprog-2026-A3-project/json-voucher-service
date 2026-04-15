@@ -98,6 +98,30 @@ class VoucherServiceTest {
     }
 
     @Test
+    void testCreateIfPeriodEqual(){
+        LocalDateTime validFrom = LocalDateTime.of(2026, 3, 10, 10, 0);
+        LocalDateTime validUntil = LocalDateTime.of(2026, 3, 10, 10, 0);
+
+        try {
+            voucherService.createVoucher(
+                "DISC10",
+                validFrom,
+                validUntil,
+                10,
+                DISCOUNT_PERCENT,
+                MINIMUM_PURCHASE_AMOUNT,
+                null,
+                "Minimal order applies"
+            );
+            fail();
+        } catch (InvalidVoucherPeriodException exception) {
+            assertEquals("validUntil must be after validFrom", exception.getMessage());
+        }
+
+        verify(voucherWriteRepository, never()).save(any(Voucher.class));
+    }
+
+    @Test
     void testFindAll(){
         Voucher voucher = new Voucher(
             "DISC10",
