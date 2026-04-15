@@ -2,6 +2,10 @@ alter table vouchers
     add column minimum_purchase_amount bigint not null default 0,
     add column max_discount_amount bigint;
 
+update vouchers
+set discount_percent = 10
+where discount_percent < 1;
+
 alter table vouchers
     drop constraint if exists vouchers_discount_percent_check;
 
