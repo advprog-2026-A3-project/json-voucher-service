@@ -11,7 +11,6 @@ import id.ac.ui.cs.advprog.voucher.entity.Voucher;
 import id.ac.ui.cs.advprog.voucher.service.VoucherService;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,16 +50,6 @@ public class VoucherController {
     public ResponseEntity<List<VoucherResponse>> getAllVouchers(){
         List<VoucherResponse> vouchers = voucherService.listVouchers().stream().map(VoucherResponse::from).toList();
         return ResponseEntity.ok(vouchers);
-    }
-
-    @PostMapping("/{voucherCode}/checkout")
-    public ResponseEntity<Map<String, Object>> checkoutVoucher(@PathVariable String voucherCode){
-        Voucher updated = voucherService.checkoutVoucher(voucherCode);
-        return ResponseEntity.ok(Map.of(
-                "status", "SUCCESS",
-                "voucherCode", updated.getVoucherCode(),
-                "quotaRemaining", updated.getQuotaRemaining()
-        ));
     }
 
     @GetMapping("/{voucherCode}")
