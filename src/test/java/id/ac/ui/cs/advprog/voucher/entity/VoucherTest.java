@@ -12,7 +12,7 @@ class VoucherTest {
     private static final long MINIMUM_PURCHASE_AMOUNT = 0;
 
     @Test
-    void testCheckout(){
+    void testRedeem(){
         Voucher voucher = new Voucher(
                 "DISC10",
                 LocalDateTime.of(2026, 3, 1, 10, 0),
@@ -24,12 +24,12 @@ class VoucherTest {
                 "Terms"
         );
 
-        voucher.checkout(LocalDateTime.of(2026, 3, 5, 10, 0));
+        voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000);
         assertEquals(2, voucher.getQuotaRemaining());
     }
 
     @Test
-    void testCheckoutIfVoucherHasNotStarted(){
+    void testRedeemIfVoucherHasNotStarted(){
         Voucher voucher = new Voucher(
                 "DISC10",
                 LocalDateTime.of(2026, 3, 10, 10, 0),
@@ -42,7 +42,7 @@ class VoucherTest {
         );
 
         try {
-            voucher.checkout(LocalDateTime.of(2026, 3, 5, 10, 0));
+            voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000);
             fail();
         } catch (InvalidVoucherStateException exception){
             assertEquals("voucher is not yet valid", exception.getMessage());
@@ -50,7 +50,7 @@ class VoucherTest {
     }
 
     @Test
-    void testCheckoutIfVoucherExpired(){
+    void testRedeemIfVoucherExpired(){
         Voucher voucher = new Voucher(
                 "DISC10",
                 LocalDateTime.of(2026, 3, 1, 10, 0),
@@ -63,7 +63,7 @@ class VoucherTest {
         );
 
         try {
-            voucher.checkout(LocalDateTime.of(2026, 3, 11, 10, 0));
+            voucher.redeem(LocalDateTime.of(2026, 3, 11, 10, 0), 100000);
             fail();
         } catch (InvalidVoucherStateException exception){
             assertEquals("voucher has expired", exception.getMessage());
@@ -71,7 +71,7 @@ class VoucherTest {
     }
 
     @Test
-    void testCheckoutIfQuotaExhausted(){
+    void testRedeemIfQuotaExhausted(){
         Voucher voucher = new Voucher(
                 "DISC10",
                 LocalDateTime.of(2026, 3, 1, 10, 0),
@@ -83,9 +83,9 @@ class VoucherTest {
                 "Terms"
         );
 
-        voucher.checkout(LocalDateTime.of(2026, 3, 5, 10, 0));
+        voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000);
         try {
-            voucher.checkout(LocalDateTime.of(2026, 3, 5, 11, 0));
+            voucher.redeem(LocalDateTime.of(2026, 3, 5, 11, 0), 100000);
             fail();
         } catch (VoucherQuotaExhaustedException exception){
             assertEquals("voucher quota exhausted", exception.getMessage());
@@ -105,7 +105,7 @@ class VoucherTest {
                 "Terms"
         );
 
-        voucher.checkout(LocalDateTime.of(2026, 3, 5, 10, 0));
+        voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000);
         voucher.updateDetails(
                 LocalDateTime.of(2026, 3, 2, 10, 0),
                 LocalDateTime.of(2026, 3, 12, 10, 0),
@@ -121,7 +121,7 @@ class VoucherTest {
     }
 
     @Test
-    void testCheckoutIfVoucherInactive(){
+    void testRedeemIfVoucherInactive(){
         Voucher voucher = new Voucher(
                 "DISC10",
                 LocalDateTime.of(2026, 3, 1, 10, 0),
@@ -142,7 +142,7 @@ class VoucherTest {
         }
 
         try {
-            voucher.checkout(LocalDateTime.of(2026, 3, 5, 10, 0));
+            voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000);
             fail();
         } catch (InvalidVoucherStateException exception){
             assertEquals("voucher is inactive", exception.getMessage());

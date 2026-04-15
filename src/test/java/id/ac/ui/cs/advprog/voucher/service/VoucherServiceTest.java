@@ -302,7 +302,7 @@ class VoucherServiceTest {
                 null,
                 "Terms"
         );
-        exhaustedVoucher.checkout(LocalDateTime.now());
+        exhaustedVoucher.redeem(LocalDateTime.now(), 100000);
 
         when(voucherReadRepository.findAllByCreatedAtDesc()).thenReturn(List.of(
             availableVoucher,

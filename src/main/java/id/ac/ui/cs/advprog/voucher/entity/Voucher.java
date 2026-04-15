@@ -94,11 +94,6 @@ public class Voucher {
         this.maxDiscountAmount = maxDiscountAmount;
         this.terms = terms;
     }
-    
-    public void checkout(LocalDateTime now){
-        validateCanBeCheckedOutAt(now);
-        this.quotaRemaining -= 1;
-    }
 
     public long previewDiscount(LocalDateTime now, long subtotal){
         validateEligible(now, subtotal);
@@ -121,13 +116,6 @@ public class Voucher {
 
     public void deactivate(){
         this.active = false;
-    }
-
-    private void validateCanBeCheckedOutAt(LocalDateTime now){
-        validateVoucherIsActive();
-        validateVoucherHasStarted(now);
-        validateVoucherNotExpired(now);
-        validateVoucherQuotaAvailable();
     }
 
     private void validateEligible(LocalDateTime now, long subtotal){
