@@ -2,7 +2,8 @@ name: Heroku CD
 
 on:
   push:
-    branches: ["staging", "feat/db-migration"]
+    branches: ["staging", "feat/voucher-business-rules"]
+  workflow_dispatch:
 
 jobs:
   deploy_staging:

@@ -16,8 +16,8 @@ public class VoucherService {
     private final VoucherWriteRepository voucherWriteRepository;
 
     public VoucherService(
-            VoucherReadRepository voucherReadRepository,
-            VoucherWriteRepository voucherWriteRepository
+        VoucherReadRepository voucherReadRepository,
+        VoucherWriteRepository voucherWriteRepository
     ){
         this.voucherReadRepository = voucherReadRepository;
         this.voucherWriteRepository = voucherWriteRepository;
@@ -25,22 +25,51 @@ public class VoucherService {
 
     @Transactional
     public Voucher createVoucher(
-            String voucherCode, LocalDateTime validFrom, LocalDateTime validUntil, 
-            Integer totalQuota, String terms
+        String voucherCode,
+        LocalDateTime validFrom,
+        LocalDateTime validUntil,
+        Integer totalQuota,
+        Integer discountPercent,
+        Long minimumPurchaseAmount,
+        Long maxDiscountAmount,
+        String terms
     ){
         validateVoucherPeriod(validFrom, validUntil);
-        Voucher voucher = new Voucher(voucherCode, validFrom, validUntil, totalQuota, terms);
+        Voucher voucher = new Voucher(
+            voucherCode,
+            validFrom,
+            validUntil,
+            totalQuota,
+            discountPercent,
+            minimumPurchaseAmount,
+            maxDiscountAmount,
+            terms
+        );
         return voucherWriteRepository.save(voucher);
     }
 
     @Transactional
     public Voucher updateVoucher(
-        String voucherCode, LocalDateTime validFrom, LocalDateTime validUntil,
-        Integer totalQuota, String terms
+        String voucherCode,
+        LocalDateTime validFrom,
+        LocalDateTime validUntil,
+        Integer totalQuota,
+        Integer discountPercent,
+        Long minimumPurchaseAmount,
+        Long maxDiscountAmount,
+        String terms
     ){
         validateVoucherPeriod(validFrom, validUntil);
         Voucher voucher = findVoucherByCode(voucherCode);
-        voucher.updateDetails(validFrom, validUntil, totalQuota, terms);
+        voucher.updateDetails(
+            validFrom,
+            validUntil,
+            totalQuota,
+            discountPercent,
+            minimumPurchaseAmount,
+            maxDiscountAmount,
+            terms
+        );
         return voucherWriteRepository.save(voucher);
     }
 
@@ -52,19 +81,15 @@ public class VoucherService {
 
     @Transactional(readOnly = true)
     public List<Voucher> listVouchers(){
-        return voucherReadRepository.findAllByCreatedAtDesc();
-    }
-
-    @Transactional
-    public Voucher checkoutVoucher(String voucherCode){
-        Voucher voucher = findVoucherByCode(voucherCode);
-        voucher.checkout(LocalDateTime.now());
-        return voucherWriteRepository.save(voucher);
+        LocalDateTime now = LocalDateTime.now();
+        return voucherReadRepository.findAllByCreatedAtDesc().stream()
+            .filter(voucher -> voucher.isPubliclyAvailable(now))
+            .toList();
     }
 
     private Voucher findVoucherByCode(String voucherCode){
         return voucherReadRepository.findByVoucherCode(voucherCode)
-                .orElseThrow(VoucherNotFoundException::new);
+            .orElseThrow(VoucherNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
@@ -73,8 +98,28 @@ public class VoucherService {
     }
 
     private void validateVoucherPeriod(LocalDateTime validFrom, LocalDateTime validUntil){
-        if (validUntil.isBefore(validFrom)){
+        if (!validUntil.isAfter(validFrom)){
             throw new InvalidVoucherPeriodException();
         }
+    }
+
+    @Transactional(readOnly = true)
+    public long previewVoucherDiscount(String voucherCode, long subtotal){
+        Voucher voucher = findVoucherByCode(voucherCode);
+        return voucher.previewDiscount(LocalDateTime.now(), subtotal);
+    }
+
+    @Transactional
+    public Voucher deactivateVoucher(String voucherCode){
+        Voucher voucher = findVoucherByCode(voucherCode);
+        voucher.deactivate();
+        return voucherWriteRepository.save(voucher);
+    }
+
+    @Transactional
+    public Voucher redeemVoucher(String voucherCode, long subtotal){
+        Voucher voucher = findVoucherByCode(voucherCode);
+        voucher.redeem(LocalDateTime.now(), subtotal);
+        return voucherWriteRepository.save(voucher);
     }
 }
