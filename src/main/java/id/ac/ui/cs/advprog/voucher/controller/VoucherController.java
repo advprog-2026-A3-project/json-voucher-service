@@ -1,13 +1,16 @@
 package id.ac.ui.cs.advprog.voucher.controller;
 
 import id.ac.ui.cs.advprog.voucher.dto.CreateVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.RedeemVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.RedeemVoucherResponse;
 import id.ac.ui.cs.advprog.voucher.dto.UpdateVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherRequest;
+import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherResponse;
 import id.ac.ui.cs.advprog.voucher.dto.VoucherResponse;
 import id.ac.ui.cs.advprog.voucher.entity.Voucher;
 import id.ac.ui.cs.advprog.voucher.service.VoucherService;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,29 +30,28 @@ public class VoucherController {
     public VoucherController(VoucherService voucherService){
         this.voucherService = voucherService;
     }
-    
+
     @PostMapping
     public ResponseEntity<VoucherResponse> createVoucher(@Valid @RequestBody CreateVoucherRequest request){
         Voucher voucherCreated = voucherService.createVoucher(
-                request.voucherCode(), request.validFrom(), request.validUntil(), request.totalQuota(), request.terms()
+            request.voucherCode(),
+            request.validFrom(),
+            request.validUntil(),
+            request.totalQuota(),
+            request.discountPercent(),
+            request.minimumPurchaseAmount(),
+            request.maxDiscountAmount(),
+            request.terms()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(VoucherResponse.from(voucherCreated));
     }
 
     @GetMapping
     public ResponseEntity<List<VoucherResponse>> getAllVouchers(){
-         List<VoucherResponse> vouchers = voucherService.listVouchers().stream().map(VoucherResponse::from).toList();
+        List<VoucherResponse> vouchers = voucherService.listVouchers().stream()
+            .map(VoucherResponse::from)
+            .toList();
         return ResponseEntity.ok(vouchers);
-    }
-
-    @PostMapping("/{voucherCode}/checkout")
-    public ResponseEntity<Map<String, Object>> checkoutVoucher(@PathVariable String voucherCode){
-        Voucher updated = voucherService.checkoutVoucher(voucherCode);
-        return ResponseEntity.ok(Map.of(
-                "status", "SUCCESS",
-                "voucherCode", updated.getVoucherCode(),
-                "quotaRemaining", updated.getQuotaRemaining()
-        ));
     }
 
     @GetMapping("/{voucherCode}")
@@ -59,11 +61,19 @@ public class VoucherController {
     }
 
     @PutMapping("/{voucherCode}")
-    public ResponseEntity<VoucherResponse> updateVoucher(@PathVariable String voucherCode,
-            @Valid @RequestBody UpdateVoucherRequest request
+    public ResponseEntity<VoucherResponse> updateVoucher(
+        @PathVariable String voucherCode,
+        @Valid @RequestBody UpdateVoucherRequest request
     ){
         Voucher updatedVoucher = voucherService.updateVoucher(
-                voucherCode, request.validFrom(), request.validUntil(), request.totalQuota(), request.terms()
+            voucherCode,
+            request.validFrom(),
+            request.validUntil(),
+            request.totalQuota(),
+            request.discountPercent(),
+            request.minimumPurchaseAmount(),
+            request.maxDiscountAmount(),
+            request.terms()
         );
         return ResponseEntity.ok(VoucherResponse.from(updatedVoucher));
     }
@@ -72,5 +82,45 @@ public class VoucherController {
     public ResponseEntity<Void> deleteVoucher(@PathVariable String voucherCode){
         voucherService.deleteVoucher(voucherCode);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<ValidateVoucherResponse> validateVoucher(
+        @Valid @RequestBody ValidateVoucherRequest request
+    ){
+        long discountAmount = voucherService.previewVoucherDiscount(
+            request.voucherCode(),
+            request.subtotal()
+        );
+
+        ValidateVoucherResponse response = new ValidateVoucherResponse(
+            request.voucherCode(),
+            request.subtotal(),
+            discountAmount
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{voucherCode}/deactivate")
+    public ResponseEntity<VoucherResponse> deactivateVoucher(@PathVariable String voucherCode){
+        Voucher voucher = voucherService.deactivateVoucher(voucherCode);
+        return ResponseEntity.ok(VoucherResponse.from(voucher));
+    }
+
+    @PostMapping("/{voucherCode}/redeem")
+    public ResponseEntity<RedeemVoucherResponse> redeemVoucher(
+        @PathVariable String voucherCode,
+        @Valid @RequestBody RedeemVoucherRequest request
+    ){
+        Voucher voucher = voucherService.redeemVoucher(voucherCode, request.subtotal());
+
+        RedeemVoucherResponse response = new RedeemVoucherResponse(
+            voucher.getVoucherCode(),
+            request.subtotal(),
+            voucher.getQuotaRemaining()
+        );
+
+        return ResponseEntity.ok(response);
     }
 }

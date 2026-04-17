@@ -6,65 +6,134 @@
   <title>Voucher Service Demo</title>
   <style>
     :root {
-      --bg: #f4efe8;
-      --card: #fff;
-      --ink: #1d2433;
-      --muted: #5f6572;
-      --line: #d9dce3;
-      --accent: #b45309;
-      --accent2: #f59e0b;
-      --ok: #047857;
-      --err: #b91c1c;
+      --bg: #edf2ee;
+      --card: #ffffff;
+      --card-strong: #245143;
+      --ink: #18231f;
+      --muted: #62706a;
+      --line: #d8e2db;
+      --accent: #2f6b56;
+      --accent-soft: #3b8168;
+      --accent-faint: #ebf3ef;
+      --ok: #0f766e;
+      --ok-bg: #eefbf8;
+      --err: #b42318;
+      --err-bg: #fff1ef;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
-      color: var(--ink);
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background:
-        radial-gradient(circle at 10% 10%, #ffe7cc, transparent 45%),
-        radial-gradient(circle at 90% 0%, #fde7d6, transparent 35%),
-        var(--bg);
       min-height: 100vh;
+      color: var(--ink);
+      font-family: "Segoe UI Variable", "Trebuchet MS", sans-serif;
+      background: var(--bg);
     }
 
     .container {
-      max-width: 980px;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 28px 16px 40px;
-    }
-
-    h1 {
-      margin: 0 0 4px;
-      font-size: 34px;
-      letter-spacing: .4px;
-    }
-
-    .sub {
-      margin: 0 0 20px;
-      color: var(--muted);
+      padding: 28px 16px 42px;
     }
 
     .card {
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 14px;
-      box-shadow: 0 10px 24px rgba(22, 24, 35, 0.08);
-      padding: 16px;
-      margin-bottom: 16px;
+      border-radius: 18px;
+      box-shadow: 0 12px 28px rgba(24, 35, 31, 0.06);
+      padding: 18px;
     }
 
-    .card h2 {
-      margin: 0 0 12px;
-      font-size: 20px;
+    .hero {
+      margin-bottom: 18px;
+      overflow: hidden;
+      position: relative;
+      padding: 24px 22px;
+      background: var(--card-strong);
+      color: #f5fbf7;
+    }
+
+    .hero::after {
+      content: none;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 36px;
+      letter-spacing: .3px;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .sub {
+      margin: 0;
+      max-width: 560px;
+      color: rgba(245, 251, 247, 0.82);
+      line-height: 1.55;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .hero-badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(245, 251, 247, 0.18);
+      background: rgba(245, 251, 247, 0.08);
+      color: #f5fbf7;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .field {
@@ -78,8 +147,9 @@
     }
 
     label {
-      font-size: 13px;
       color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
     }
 
     input, textarea, button {
@@ -87,43 +157,170 @@
     }
 
     input, textarea {
-      border: 1px solid #cfd5de;
-      border-radius: 10px;
-      padding: 10px 11px;
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d6dce5;
+      border-radius: 12px;
       background: #fff;
       color: var(--ink);
     }
 
     textarea {
-      min-height: 70px;
+      min-height: 82px;
       resize: vertical;
+    }
+
+    button {
+      cursor: pointer;
     }
 
     .btn {
       border: 0;
-      border-radius: 10px;
-      padding: 10px 14px;
+      border-radius: 12px;
+      padding: 10px 15px;
       color: #fff;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform .12s ease;
+      font-weight: 700;
+      background: var(--accent);
+      box-shadow: 0 8px 16px rgba(36, 88, 70, 0.16);
     }
 
-    .btn:active {
-      transform: translateY(1px);
+    .btn.ghost {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid #d6dce5;
+      box-shadow: none;
+    }
+
+    .btn.small {
+      padding: 8px 10px;
+      font-size: 13px;
+      border-radius: 10px;
+      box-shadow: none;
     }
 
     .row {
       display: flex;
-      gap: 8px;
       flex-wrap: wrap;
+      gap: 8px;
       align-items: center;
     }
 
-    .row input {
-      min-width: 180px;
-      flex: 1;
+    .status {
+      min-height: 20px;
+      font-size: 14px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .ok {
+      color: var(--ok);
+    }
+
+    .err {
+      color: var(--err);
+    }
+
+    .result-box {
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px dashed #cad7cf;
+      background: #f8fbf9;
+      min-height: 92px;
+    }
+
+    .result-box.ok-surface {
+      border-style: solid;
+      border-color: rgba(4, 120, 87, 0.18);
+      background: var(--ok-bg);
+    }
+
+    .result-box.err-surface {
+      border-style: solid;
+      border-color: rgba(180, 35, 24, 0.18);
+      background: var(--err-bg);
+    }
+
+    .result-title {
+      margin: 0 0 10px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--muted);
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      padding: 10px 11px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #e1e9e4;
+    }
+
+    .metric-label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .metric-value {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .detail-card {
+      margin-top: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #f8fbf9;
+      padding: 14px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      background: var(--accent-faint);
+      color: var(--accent);
+    }
+
+    .pill.soft {
+      background: #f5f8f6;
+      color: var(--ink);
+      border: 1px solid #d8e2db;
+    }
+
+    .pill.ok {
+      background: var(--ok-bg);
+      color: var(--ok);
+    }
+
+    .pill.err {
+      background: var(--err-bg);
+      color: var(--err);
     }
 
     table {
@@ -133,122 +330,288 @@
     }
 
     th, td {
+      padding: 11px 8px;
       text-align: left;
       border-bottom: 1px solid var(--line);
-      padding: 10px 8px;
       vertical-align: top;
     }
 
     th {
       font-size: 12px;
-      color: var(--muted);
       text-transform: uppercase;
       letter-spacing: .05em;
+      color: var(--muted);
     }
 
-    .muted { color: var(--muted); }
-    .ok { color: var(--ok); }
-    .err { color: var(--err); }
+    td code {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .cell-note {
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    @media (max-width: 880px) {
+      .split, .grid.three {
+        grid-template-columns: 1fr;
+      }
+    }
 
     @media (max-width: 760px) {
-      .grid { grid-template-columns: 1fr; }
-      h1 { font-size: 28px; }
-      table { display: block; overflow-x: auto; }
+      h1 {
+        font-size: 30px;
+      }
+
+      .grid, .detail-grid, .result-grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
     }
   </style>
 </head>
 <body>
 <main class="container">
-  <h1>Voucher Service Demo</h1>
-  <p class="sub">Initial integration FE + BE + DB in one app.</p>
-
-  <section class="card">
-    <h2>Create Voucher</h2>
-    <form id="createForm">
-      <div class="grid">
-        <div class="field">
-          <label for="voucherCode">Voucher Code</label>
-          <input id="voucherCode" type="text" placeholder="WELCOME20" required>
-        </div>
-        <div class="field">
-          <label for="totalQuota">Total Quota</label>
-          <input id="totalQuota" type="number" min="1" value="10" required>
-        </div>
-        <div class="field">
-          <label for="validFrom">Valid From</label>
-          <input id="validFrom" type="datetime-local" required>
-        </div>
-        <div class="field">
-          <label for="validUntil">Valid Until</label>
-          <input id="validUntil" type="datetime-local" required>
-        </div>
-        <div class="field full">
-          <label for="terms">Terms</label>
-          <textarea id="terms" placeholder="diskon 20%, minimal belanja 100000" required></textarea>
-        </div>
-      </div>
-      <div class="row" style="margin-top:10px;">
-        <button class="btn" type="submit">Create</button>
-        <span id="createMsg" class="muted"></span>
-      </div>
-    </form>
-  </section>
-
-  <section class="card">
-    <h2>Apply Voucher (Checkout)</h2>
-    <div class="row">
-      <input id="checkoutVoucherCode" type="text" placeholder="Input voucher code">
-      <button id="checkoutBtn" class="btn" type="button">Apply</button>
-      <span id="checkoutMsg" class="muted"></span>
+  <section class="card hero">
+    <h1>Voucher Service Demo</h1>
+    <p class="sub">Create, preview, redeem, inspect, and deactivate vouchers from one place.</p>
+    <div class="hero-badges">
+      <span class="hero-badge">Preview</span>
+      <span class="hero-badge">Redeem</span>
+      <span class="hero-badge">Deactivate</span>
+      <span class="hero-badge">Public List</span>
     </div>
   </section>
 
-  <section class="card">
-    <div class="row" style="justify-content:space-between;">
-      <h2 style="margin:0;">Voucher List</h2>
-      <button id="reloadBtn" class="btn" type="button">Reload</button>
-    </div>
-    <table>
-      <thead>
-      <tr>
-        <th>Code</th>
-        <th>Quota</th>
-        <th>Validity</th>
-        <th>Status</th>
-        <th>Terms</th>
-      </tr>
-      </thead>
-      <tbody id="voucherRows"></tbody>
-    </table>
-  </section>
+  <div class="stack">
+    <section class="card">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Voucher Setup</p>
+          <h2>Create Voucher</h2>
+        </div>
+      </div>
+      <form id="createForm">
+        <div class="grid three">
+          <div class="field">
+            <label for="voucherCode">Voucher Code</label>
+            <input id="voucherCode" type="text" placeholder="WELCOME20" required>
+          </div>
+          <div class="field">
+            <label for="totalQuota">Total Quota</label>
+            <input id="totalQuota" type="number" min="1" value="10" required>
+          </div>
+          <div class="field">
+            <label for="discountPercent">Discount Percent</label>
+            <input id="discountPercent" type="number" min="1" max="100" value="10" required>
+          </div>
+          <div class="field">
+            <label for="minimumPurchaseAmount">Minimum Purchase Amount</label>
+            <input id="minimumPurchaseAmount" type="number" min="0" value="100000" required>
+          </div>
+          <div class="field">
+            <label for="maxDiscountAmount">Max Discount Amount</label>
+            <input id="maxDiscountAmount" type="number" min="0" placeholder="Optional">
+          </div>
+          <div class="field">
+            <label for="validFrom">Valid From</label>
+            <input id="validFrom" type="datetime-local" required>
+          </div>
+          <div class="field">
+            <label for="validUntil">Valid Until</label>
+            <input id="validUntil" type="datetime-local" required>
+          </div>
+          <div class="field full">
+            <label for="terms">Terms</label>
+            <textarea id="terms" required>Diskon demo internal. Cocok untuk ngetes preview dan redeem voucher.</textarea>
+          </div>
+        </div>
+        <div class="row" style="margin-top: 12px;">
+          <button class="btn" type="submit">Create Voucher</button>
+          <span id="createMsg" class="status muted"></span>
+        </div>
+      </form>
+    </section>
+
+    <section class="split">
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Discount Check</p>
+            <h2>Preview Voucher</h2>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="previewVoucherCode">Voucher Code</label>
+            <input id="previewVoucherCode" type="text" placeholder="WELCOME20">
+          </div>
+          <div class="field">
+            <label for="previewSubtotal">Subtotal</label>
+            <input id="previewSubtotal" type="number" min="0" value="250000">
+          </div>
+        </div>
+        <div class="row" style="margin-top: 12px;">
+          <button id="previewBtn" class="btn" type="button">Preview Discount</button>
+          <span id="previewMsg" class="status muted"></span>
+        </div>
+        <div id="previewResult" class="result-box muted">
+          No preview yet.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Voucher Usage</p>
+            <h2>Redeem Voucher</h2>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="redeemVoucherCode">Voucher Code</label>
+            <input id="redeemVoucherCode" type="text" placeholder="WELCOME20">
+          </div>
+          <div class="field">
+            <label for="redeemSubtotal">Subtotal</label>
+            <input id="redeemSubtotal" type="number" min="0" value="250000">
+          </div>
+        </div>
+        <div class="row" style="margin-top: 12px;">
+          <button id="redeemBtn" class="btn" type="button">Redeem Voucher</button>
+          <span id="redeemMsg" class="status muted"></span>
+        </div>
+        <div id="redeemResult" class="result-box muted">
+          No redemption yet.
+        </div>
+      </div>
+    </section>
+
+    <section class="split">
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Voucher Detail</p>
+            <h2>Inspect Voucher</h2>
+          </div>
+        </div>
+        <div class="row">
+          <input id="inspectVoucherCode" type="text" placeholder="Input voucher code untuk inspect">
+          <button id="inspectBtn" class="btn" type="button">Inspect</button>
+          <span id="inspectMsg" class="status muted"></span>
+        </div>
+        <div id="voucherDetail" class="detail-card muted">
+          Belum ada voucher yang dipilih.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Status Control</p>
+            <h2>Deactivate Voucher</h2>
+          </div>
+        </div>
+        <div class="row">
+          <input id="deactivateVoucherCode" type="text" placeholder="Input voucher code untuk deactivate">
+          <button id="deactivateBtn" class="btn ghost" type="button">Deactivate</button>
+          <span id="deactivateMsg" class="status muted"></span>
+        </div>
+        <div class="result-box muted">
+          Deactivated vouchers disappear from the public list.
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Public Surface</p>
+          <h2>Public Voucher List</h2>
+          <div class="row" style="margin-top: 8px;">
+            <span class="pill soft">Active only</span>
+            <span class="pill soft">Within validity window</span>
+            <span class="pill soft">Quota available</span>
+          </div>
+        </div>
+        <button id="reloadBtn" class="btn ghost" type="button">Reload</button>
+      </div>
+      <table>
+        <thead>
+        <tr>
+          <th>Code</th>
+          <th>Rules</th>
+          <th>Quota</th>
+          <th>Validity</th>
+          <th>Terms</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="voucherRows"></tbody>
+      </table>
+    </section>
+  </div>
 </main>
 
 <script>
-  const form = document.getElementById("createForm");
+  const createForm = document.getElementById("createForm");
   const createMsg = document.getElementById("createMsg");
-  const checkoutMsg = document.getElementById("checkoutMsg");
-  const checkoutVoucherCodeInput = document.getElementById("checkoutVoucherCode");
-  const rows = document.getElementById("voucherRows");
-  const reloadBtn = document.getElementById("reloadBtn");
-  const checkoutBtn = document.getElementById("checkoutBtn");
+  const previewMsg = document.getElementById("previewMsg");
+  const redeemMsg = document.getElementById("redeemMsg");
+  const inspectMsg = document.getElementById("inspectMsg");
+  const deactivateMsg = document.getElementById("deactivateMsg");
+  const previewResult = document.getElementById("previewResult");
+  const redeemResult = document.getElementById("redeemResult");
+  const voucherDetail = document.getElementById("voucherDetail");
+  const voucherRows = document.getElementById("voucherRows");
+
+  const voucherCodeInput = document.getElementById("voucherCode");
+  const totalQuotaInput = document.getElementById("totalQuota");
+  const discountPercentInput = document.getElementById("discountPercent");
+  const minimumPurchaseAmountInput = document.getElementById("minimumPurchaseAmount");
+  const maxDiscountAmountInput = document.getElementById("maxDiscountAmount");
+  const validFromInput = document.getElementById("validFrom");
+  const validUntilInput = document.getElementById("validUntil");
+  const termsInput = document.getElementById("terms");
+
+  const previewVoucherCodeInput = document.getElementById("previewVoucherCode");
+  const previewSubtotalInput = document.getElementById("previewSubtotal");
+  const redeemVoucherCodeInput = document.getElementById("redeemVoucherCode");
+  const redeemSubtotalInput = document.getElementById("redeemSubtotal");
+  const inspectVoucherCodeInput = document.getElementById("inspectVoucherCode");
+  const deactivateVoucherCodeInput = document.getElementById("deactivateVoucherCode");
+
+  document.getElementById("previewBtn").addEventListener("click", previewVoucher);
+  document.getElementById("redeemBtn").addEventListener("click", redeemVoucher);
+  document.getElementById("inspectBtn").addEventListener("click", () => inspectVoucher(inspectVoucherCodeInput.value.trim()));
+  document.getElementById("deactivateBtn").addEventListener("click", () => deactivateVoucher(deactivateVoucherCodeInput.value.trim()));
+  document.getElementById("reloadBtn").addEventListener("click", loadVouchers);
 
   const now = new Date();
-  const plus7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-  document.getElementById("validFrom").value = toDateTimeLocal(now);
-  document.getElementById("validUntil").value = toDateTimeLocal(plus7);
+  const plus7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  validFromInput.value = toDateTimeLocal(now);
+  validUntilInput.value = toDateTimeLocal(plus7Days);
 
   function toDateTimeLocal(date) {
-    const pad = (n) => String(n).padStart(2, "0");
+    const pad = (value) => String(value).padStart(2, "0");
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
   }
 
   function normalizeDateTime(value) {
     return value.length === 16 ? `${value}:00` : value;
-  }
-
-  function setMessage(node, message, ok) {
-    node.textContent = message;
-    node.className = ok ? "ok" : "err";
   }
 
   function escapeHtml(value) {
@@ -258,94 +621,363 @@
       .replaceAll(">", "&gt;");
   }
 
-  async function loadVouchers() {
-    rows.innerHTML = `<tr><td colspan="5" class="muted">Loading...</td></tr>`;
+  function formatMoney(value) {
+    if (value == null) {
+      return "No cap";
+    }
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0
+    }).format(value);
+  }
+
+  function formatDateTime(value) {
+    if (!value) {
+      return "-";
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return escapeHtml(value);
+    }
+    return new Intl.DateTimeFormat("id-ID", {
+      dateStyle: "medium",
+      timeStyle: "short"
+    }).format(date);
+  }
+
+  function clearMessage(node) {
+    node.textContent = "";
+    node.className = "status muted";
+  }
+
+  function setMessage(node, message, ok) {
+    node.textContent = message;
+    node.className = ok ? "status ok" : "status err";
+  }
+
+  function setResult(node, content, ok) {
+    node.innerHTML = content;
+    node.className = ok ? "result-box ok-surface" : "result-box err-surface";
+  }
+
+  async function getErrorMessage(response) {
     try {
-      const response = await fetch("/api/v1/vouchers");
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const vouchers = await response.json();
-
-      if (!Array.isArray(vouchers) || vouchers.length === 0) {
-        rows.innerHTML = `<tr><td colspan="5" class="muted">No vouchers yet.</td></tr>`;
-        return;
+      const data = await response.json();
+      if (data?.message) {
+        return data.message;
       }
-
-      rows.innerHTML = vouchers.map((voucher) => {
-        const validity = `${escapeHtml(voucher.validFrom)}<br>${escapeHtml(voucher.validUntil)}`;
-        const status = voucher.active ? "ACTIVE" : "INACTIVE";
-        const quota = `${voucher.quotaRemaining}/${voucher.totalQuota}`;
-        return `<tr>
-          <td>${escapeHtml(voucher.voucherCode)}</td>
-          <td>${escapeHtml(quota)}</td>
-          <td>${validity}</td>
-          <td>${status}</td>
-          <td>${escapeHtml(voucher.terms)}</td>
-        </tr>`;
-      }).join("");
+      return JSON.stringify(data);
     } catch (error) {
-      rows.innerHTML = `<tr><td colspan="5" class="err">Failed to load vouchers.</td></tr>`;
+      const text = await response.text();
+      return text || `HTTP ${response.status}`;
     }
   }
 
-  form.addEventListener("submit", async (event) => {
+  async function fetchJson(url, options = {}) {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      throw new Error(await getErrorMessage(response));
+    }
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  function syncVoucherCodeInputs(voucherCode) {
+    if (!voucherCode) {
+      return;
+    }
+    previewVoucherCodeInput.value = voucherCode;
+    redeemVoucherCodeInput.value = voucherCode;
+    inspectVoucherCodeInput.value = voucherCode;
+    deactivateVoucherCodeInput.value = voucherCode;
+  }
+
+  function renderVoucherDetail(voucher) {
+    if (!voucher) {
+      voucherDetail.className = "detail-card muted";
+      voucherDetail.textContent = "Belum ada voucher yang dipilih.";
+      return;
+    }
+
+    const statusClass = voucher.active ? "ok" : "err";
+    const statusText = voucher.active ? "ACTIVE" : "INACTIVE";
+    voucherDetail.className = "detail-card";
+    voucherDetail.innerHTML = `
+      <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
+        <strong>${escapeHtml(voucher.voucherCode)}</strong>
+        <span class="pill ${statusClass}">${statusText}</span>
+      </div>
+      <div class="detail-grid">
+        <div class="metric">
+          <span class="metric-label">Discount</span>
+          <span class="metric-value">${escapeHtml(voucher.discountPercent)}%</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Quota</span>
+          <span class="metric-value">${escapeHtml(voucher.quotaRemaining)}/${escapeHtml(voucher.totalQuota)}</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Minimum Purchase</span>
+          <span class="metric-value">${escapeHtml(formatMoney(voucher.minimumPurchaseAmount))}</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Max Discount</span>
+          <span class="metric-value">${escapeHtml(formatMoney(voucher.maxDiscountAmount))}</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Valid From</span>
+          <span class="metric-value">${escapeHtml(formatDateTime(voucher.validFrom))}</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Valid Until</span>
+          <span class="metric-value">${escapeHtml(formatDateTime(voucher.validUntil))}</span>
+        </div>
+      </div>
+      <div class="metric" style="margin-top: 10px;">
+        <span class="metric-label">Terms</span>
+        <span class="metric-value">${escapeHtml(voucher.terms)}</span>
+      </div>
+    `;
+  }
+
+  async function loadVouchers() {
+    voucherRows.innerHTML = `<tr><td colspan="6" class="muted">Loading public vouchers...</td></tr>`;
+    try {
+      const vouchers = await fetchJson("/api/v1/vouchers");
+
+      if (!Array.isArray(vouchers) || vouchers.length === 0) {
+        voucherRows.innerHTML = `<tr><td colspan="6" class="muted">No public vouchers available right now.</td></tr>`;
+        return;
+      }
+
+      voucherRows.innerHTML = vouchers.map((voucher) => `
+        <tr>
+          <td>
+            <code>${escapeHtml(voucher.voucherCode)}</code>
+            <span class="cell-note">Created ${escapeHtml(formatDateTime(voucher.createdAt))}</span>
+          </td>
+          <td>
+            ${escapeHtml(voucher.discountPercent)}% discount
+            <span class="cell-note">Min purchase: ${escapeHtml(formatMoney(voucher.minimumPurchaseAmount))}</span>
+            <span class="cell-note">Max discount: ${escapeHtml(formatMoney(voucher.maxDiscountAmount))}</span>
+          </td>
+          <td>${escapeHtml(voucher.quotaRemaining)}/${escapeHtml(voucher.totalQuota)}</td>
+          <td>
+            ${escapeHtml(formatDateTime(voucher.validFrom))}
+            <span class="cell-note">until ${escapeHtml(formatDateTime(voucher.validUntil))}</span>
+          </td>
+          <td>${escapeHtml(voucher.terms)}</td>
+          <td>
+            <div class="table-actions">
+              <button class="btn ghost small" type="button" data-action="inspect" data-code="${escapeHtml(voucher.voucherCode)}">Inspect</button>
+              <button class="btn small" type="button" data-action="preview" data-code="${escapeHtml(voucher.voucherCode)}">Preview</button>
+              <button class="btn ghost small" type="button" data-action="deactivate" data-code="${escapeHtml(voucher.voucherCode)}">Deactivate</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    } catch (error) {
+      voucherRows.innerHTML = `<tr><td colspan="6" class="err">Failed to load vouchers: ${escapeHtml(error.message)}</td></tr>`;
+    }
+  }
+
+  async function inspectVoucher(voucherCode) {
+    clearMessage(inspectMsg);
+    if (!voucherCode) {
+      setMessage(inspectMsg, "Please input voucher code.", false);
+      return;
+    }
+
+    try {
+      const voucher = await fetchJson(`/api/v1/vouchers/${encodeURIComponent(voucherCode)}`);
+      syncVoucherCodeInputs(voucher.voucherCode);
+      renderVoucherDetail(voucher);
+      setMessage(inspectMsg, "Voucher loaded.", true);
+    } catch (error) {
+      renderVoucherDetail(null);
+      setMessage(inspectMsg, `Inspect failed: ${error.message}`, false);
+    }
+  }
+
+  async function previewVoucher() {
+    clearMessage(previewMsg);
+    const voucherCode = previewVoucherCodeInput.value.trim();
+    const subtotal = Number(previewSubtotalInput.value);
+
+    if (!voucherCode) {
+      setMessage(previewMsg, "Please input voucher code.", false);
+      return;
+    }
+
+    try {
+      const payload = await fetchJson("/api/v1/vouchers/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          voucherCode,
+          subtotal
+        })
+      });
+
+      syncVoucherCodeInputs(voucherCode);
+      setMessage(previewMsg, "Preview success.", true);
+      setResult(previewResult, `
+        <div class="result-title">Preview Result</div>
+        <div class="result-grid">
+          <div class="metric">
+            <span class="metric-label">Voucher Code</span>
+            <span class="metric-value">${escapeHtml(payload.voucherCode)}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Subtotal</span>
+            <span class="metric-value">${escapeHtml(formatMoney(payload.subtotal))}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Discount Amount</span>
+            <span class="metric-value">${escapeHtml(formatMoney(payload.discountAmount))}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Estimated Payable</span>
+            <span class="metric-value">${escapeHtml(formatMoney(payload.subtotal - payload.discountAmount))}</span>
+          </div>
+        </div>
+      `, true);
+      await inspectVoucher(voucherCode);
+    } catch (error) {
+      setMessage(previewMsg, `Preview failed: ${error.message}`, false);
+      setResult(previewResult, `
+        <div class="result-title">Preview Failed</div>
+        <div>${escapeHtml(error.message)}</div>
+      `, false);
+    }
+  }
+
+  async function redeemVoucher() {
+    clearMessage(redeemMsg);
+    const voucherCode = redeemVoucherCodeInput.value.trim();
+    const subtotal = Number(redeemSubtotalInput.value);
+
+    if (!voucherCode) {
+      setMessage(redeemMsg, "Please input voucher code.", false);
+      return;
+    }
+
+    try {
+      const payload = await fetchJson(`/api/v1/vouchers/${encodeURIComponent(voucherCode)}/redeem`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subtotal })
+      });
+
+      syncVoucherCodeInputs(voucherCode);
+      setMessage(redeemMsg, "Voucher redeemed.", true);
+      setResult(redeemResult, `
+        <div class="result-title">Redeem Result</div>
+        <div class="result-grid">
+          <div class="metric">
+            <span class="metric-label">Voucher Code</span>
+            <span class="metric-value">${escapeHtml(payload.voucherCode)}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Subtotal</span>
+            <span class="metric-value">${escapeHtml(formatMoney(payload.subtotal))}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Quota Remaining</span>
+            <span class="metric-value">${escapeHtml(payload.quotaRemaining)}</span>
+          </div>
+        </div>
+      `, true);
+      await inspectVoucher(voucherCode);
+      await loadVouchers();
+    } catch (error) {
+      setMessage(redeemMsg, `Redeem failed: ${error.message}`, false);
+      setResult(redeemResult, `
+        <div class="result-title">Redeem Failed</div>
+        <div>${escapeHtml(error.message)}</div>
+      `, false);
+    }
+  }
+
+  async function deactivateVoucher(voucherCode) {
+    clearMessage(deactivateMsg);
+    if (!voucherCode) {
+      setMessage(deactivateMsg, "Please input voucher code.", false);
+      return;
+    }
+
+    try {
+      const voucher = await fetchJson(`/api/v1/vouchers/${encodeURIComponent(voucherCode)}/deactivate`, {
+        method: "PUT"
+      });
+      syncVoucherCodeInputs(voucherCode);
+      renderVoucherDetail(voucher);
+      setMessage(deactivateMsg, "Voucher deactivated.", true);
+      await loadVouchers();
+    } catch (error) {
+      setMessage(deactivateMsg, `Deactivate failed: ${error.message}`, false);
+    }
+  }
+
+  voucherRows.addEventListener("click", async (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) {
+      return;
+    }
+
+    const voucherCode = button.dataset.code || "";
+    const action = button.dataset.action;
+
+    if (action === "inspect") {
+      await inspectVoucher(voucherCode);
+      return;
+    }
+
+    if (action === "preview") {
+      previewVoucherCodeInput.value = voucherCode;
+      await previewVoucher();
+      return;
+    }
+
+    if (action === "deactivate") {
+      await deactivateVoucher(voucherCode);
+    }
+  });
+
+  createForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    createMsg.textContent = "";
+    clearMessage(createMsg);
 
     const body = {
-      voucherCode: document.getElementById("voucherCode").value.trim(),
-      validFrom: normalizeDateTime(document.getElementById("validFrom").value),
-      validUntil: normalizeDateTime(document.getElementById("validUntil").value),
-      totalQuota: Number(document.getElementById("totalQuota").value),
-      terms: document.getElementById("terms").value.trim()
+      voucherCode: voucherCodeInput.value.trim(),
+      validFrom: normalizeDateTime(validFromInput.value),
+      validUntil: normalizeDateTime(validUntilInput.value),
+      totalQuota: Number(totalQuotaInput.value),
+      discountPercent: Number(discountPercentInput.value),
+      minimumPurchaseAmount: Number(minimumPurchaseAmountInput.value),
+      maxDiscountAmount: maxDiscountAmountInput.value === "" ? null : Number(maxDiscountAmountInput.value),
+      terms: termsInput.value.trim()
     };
 
     try {
-      const response = await fetch("/api/v1/vouchers", {
+      const voucher = await fetchJson("/api/v1/vouchers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
       });
 
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || `HTTP ${response.status}`);
-      }
-
       setMessage(createMsg, "Voucher created.", true);
-      form.reset();
-      document.getElementById("validFrom").value = toDateTimeLocal(new Date());
-      document.getElementById("validUntil").value = toDateTimeLocal(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
-      document.getElementById("totalQuota").value = "10";
+      syncVoucherCodeInputs(voucher.voucherCode);
+      renderVoucherDetail(voucher);
       await loadVouchers();
+      await inspectVoucher(voucher.voucherCode);
     } catch (error) {
       setMessage(createMsg, `Create failed: ${error.message}`, false);
     }
   });
 
-  checkoutBtn.addEventListener("click", async () => {
-    checkoutMsg.textContent = "";
-    const voucherCode = checkoutVoucherCodeInput.value.trim();
-    if (!voucherCode) {
-      setMessage(checkoutMsg, "Please input voucher code.", false);
-      return;
-    }
-    try {
-      const response = await fetch(`/api/v1/vouchers/${encodeURIComponent(voucherCode)}/checkout`, {
-        method: "POST"
-      });
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || `HTTP ${response.status}`);
-      }
-      const payload = await response.json();
-      setMessage(checkoutMsg, `Applied. Remaining quota: ${payload.quotaRemaining}`, true);
-      await loadVouchers();
-    } catch (error) {
-      setMessage(checkoutMsg, `Apply failed: ${error.message}`, false);
-    }
-  });
-
-  reloadBtn.addEventListener("click", loadVouchers);
+  renderVoucherDetail(null);
   loadVouchers();
 </script>
 </body>

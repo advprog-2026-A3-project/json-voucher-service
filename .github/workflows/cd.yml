@@ -1,0 +1,44 @@
+name: Heroku CD
+
+on:
+  push:
+    branches: ["staging", "feat/voucher-business-rules"]
+  workflow_dispatch:
+
+jobs:
+  deploy_staging:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+    steps:
+      - name: Checkout staging branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy to Heroku staging
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME_STAGING }}
+        run: |
+          if [ -z "$HEROKU_API_KEY" ] || [ -z "$HEROKU_APP_NAME" ]; then
+            echo "Missing Heroku staging secrets."
+            exit 1
+          fi
+          git remote add heroku "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${HEROKU_APP_NAME}.git"
+          git push heroku HEAD:main --force
+
+      - name: Wait for staging app to boot
+        run: sleep 30
+
+      - name: Smoke test staging health endpoint
+        env:
+          HEROKU_APP_URL: ${{ secrets.HEROKU_APP_URL_STAGING }}
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME_STAGING }}
+        run: |
+          if [ -n "$HEROKU_APP_URL" ]; then
+            HEALTH_URL="${HEROKU_APP_URL%/}/actuator/health"
+          else
+            HEALTH_URL="https://${HEROKU_APP_NAME}.herokuapp.com/actuator/health"
+          fi
+          curl --fail --silent --show-error "$HEALTH_URL" | grep '"status":"UP"'

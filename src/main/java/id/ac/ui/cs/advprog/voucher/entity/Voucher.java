@@ -2,7 +2,12 @@ package id.ac.ui.cs.advprog.voucher.entity;
 
 import id.ac.ui.cs.advprog.voucher.exception.InvalidVoucherStateException;
 import id.ac.ui.cs.advprog.voucher.exception.VoucherQuotaExhaustedException;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,17 +31,22 @@ public class Voucher {
     @Column(nullable = false)
     private LocalDateTime validUntil;
 
-    @Column(nullable = false)
+    @Column(name = "quota_total", nullable = false)
     private Integer totalQuota;
 
     @Column(nullable = false)
     private Integer quotaRemaining;
 
     @Column(nullable = false)
-    private Integer discountPercent = 0;
+    private Integer discountPercent;
 
-    @Lob
-    @Column(nullable = false)
+    @Column(name = "minimum_purchase_amount", nullable = false)
+    private Long minimumPurchaseAmount;
+
+    @Column(name = "max_discount_amount")
+    private Long maxDiscountAmount;
+
+    @Column(nullable = false, columnDefinition = "text")
     private String terms;
 
     @Column(nullable = false)
@@ -46,21 +56,35 @@ public class Voucher {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public Voucher(
-            String voucherCode,
-            LocalDateTime validFrom,
-            LocalDateTime validUntil,
-            Integer totalQuota,
-            String terms
-    ) {
+        String voucherCode,
+        LocalDateTime validFrom,
+        LocalDateTime validUntil,
+        Integer totalQuota,
+        Integer discountPercent,
+        Long minimumPurchaseAmount,
+        Long maxDiscountAmount,
+        String terms
+    ){
         this.voucherCode = voucherCode;
         this.validFrom = validFrom;
         this.validUntil = validUntil;
         this.totalQuota = totalQuota;
         this.quotaRemaining = totalQuota;
+        this.discountPercent = discountPercent;
+        this.minimumPurchaseAmount = minimumPurchaseAmount;
+        this.maxDiscountAmount = maxDiscountAmount;
         this.terms = terms;
     }
 
-    public void updateDetails(LocalDateTime validFrom, LocalDateTime validUntil, Integer totalQuota, String terms){
+    public void updateDetails(
+        LocalDateTime validFrom,
+        LocalDateTime validUntil,
+        Integer totalQuota,
+        Integer discountPercent,
+        Long minimumPurchaseAmount,
+        Long maxDiscountAmount,
+        String terms
+    ){
         int usedQuota = this.totalQuota - this.quotaRemaining;
         if (totalQuota < usedQuota){
             throw new InvalidVoucherStateException("total quota can't be less than used quota");
@@ -70,19 +94,44 @@ public class Voucher {
         this.validUntil = validUntil;
         this.totalQuota = totalQuota;
         this.quotaRemaining = totalQuota - usedQuota;
+        this.discountPercent = discountPercent;
+        this.minimumPurchaseAmount = minimumPurchaseAmount;
+        this.maxDiscountAmount = maxDiscountAmount;
         this.terms = terms;
     }
-    
-    public void checkout(LocalDateTime now){
-        validateCanBeCheckedOutAt(now);
+
+    public long previewDiscount(LocalDateTime now, long subtotal){
+        validateEligible(now, subtotal);
+        return calculateDiscount(subtotal);
+    }
+
+    public long calculateDiscount(long subtotal){
+        long discount = subtotal * this.discountPercent / 100;
+
+        if (this.maxDiscountAmount == null){
+            return discount;
+        }
+        return Math.min(discount, this.maxDiscountAmount);
+    }
+
+    public void redeem(LocalDateTime now, long subtotal){
+        validateEligible(now, subtotal);
         this.quotaRemaining -= 1;
     }
 
-    private void validateCanBeCheckedOutAt(LocalDateTime now){
+    public void deactivate(){
+        this.active = false;
+    }
+
+    private void validateEligible(LocalDateTime now, long subtotal){
         validateVoucherIsActive();
         validateVoucherHasStarted(now);
         validateVoucherNotExpired(now);
         validateVoucherQuotaAvailable();
+
+        if (subtotal < this.minimumPurchaseAmount){
+            throw new InvalidVoucherStateException("subtotal doesn't meet minimum purchase amount");
+        }
     }
 
     private void validateVoucherIsActive(){
@@ -107,5 +156,12 @@ public class Voucher {
         if (this.quotaRemaining <= 0){
             throw new VoucherQuotaExhaustedException();
         }
+    }
+
+    public boolean isPubliclyAvailable(LocalDateTime now){
+        return Boolean.TRUE.equals(this.active)
+            && !now.isBefore(this.validFrom)
+            && !now.isAfter(this.validUntil)
+            && this.quotaRemaining > 0;
     }
 }
