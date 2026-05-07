@@ -187,13 +187,12 @@ class VoucherControllerTest {
     @Test
     void testValidateVoucher(){
         ValidateVoucherRequest request = new ValidateVoucherRequest(
-            "DISC10",
             Long.valueOf(200000)
         );
 
         when(voucherService.previewVoucherDiscount("DISC10", 200000)).thenReturn(20000L);
 
-        ResponseEntity<ValidateVoucherResponse> response = controller.validateVoucher(request);
+        ResponseEntity<ValidateVoucherResponse> response = controller.validateVoucher("DISC10", request);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());

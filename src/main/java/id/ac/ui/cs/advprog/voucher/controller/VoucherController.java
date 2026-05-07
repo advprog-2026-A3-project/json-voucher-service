@@ -66,16 +66,17 @@ public class VoucherController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/validate")
+    @PostMapping("/{voucherCode}/validate")
     public ResponseEntity<ValidateVoucherResponse> validateVoucher(
+        @PathVariable String voucherCode,
         @Valid @RequestBody ValidateVoucherRequest request
     ){
         long discountAmount = voucherService.previewVoucherDiscount(
-            request.voucherCode(),
+            voucherCode,
             request.subtotal()
         );
         ValidateVoucherResponse response = new ValidateVoucherResponse(
-            request.voucherCode(),
+            voucherCode,
             request.subtotal(),
             discountAmount
         );
