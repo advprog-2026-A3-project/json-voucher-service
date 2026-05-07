@@ -8,6 +8,8 @@ import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherRequest;
 import id.ac.ui.cs.advprog.voucher.dto.ValidateVoucherResponse;
 import id.ac.ui.cs.advprog.voucher.dto.VoucherResponse;
 import id.ac.ui.cs.advprog.voucher.entity.Voucher;
+import id.ac.ui.cs.advprog.voucher.service.CreateVoucherCommand;
+import id.ac.ui.cs.advprog.voucher.service.UpdateVoucherCommand;
 import id.ac.ui.cs.advprog.voucher.service.VoucherService;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,16 +59,7 @@ class VoucherControllerTest {
             null,
             "Terms"
         );
-        when(voucherService.createVoucher(
-            request.voucherCode(),
-            request.validFrom(),
-            request.validUntil(),
-            request.totalQuota(),
-            request.discountPercent(),
-            request.minimumPurchaseAmount(),
-            request.maxDiscountAmount(),
-            request.terms()
-        )).thenReturn(voucher);
+        when(voucherService.createVoucher(request.toCommand())).thenReturn(voucher);
 
         ResponseEntity<VoucherResponse> response = controller.createVoucher(request);
 
@@ -74,7 +67,7 @@ class VoucherControllerTest {
         assertNotNull(response.getBody());
         assertEquals("DISC10", response.getBody().voucherCode());
         assertEquals(10, response.getBody().quotaRemaining());
-        verify(voucherService).createVoucher(
+        verify(voucherService).createVoucher(new CreateVoucherCommand(
             request.voucherCode(),
             request.validFrom(),
             request.validUntil(),
@@ -83,7 +76,7 @@ class VoucherControllerTest {
             request.minimumPurchaseAmount(),
             request.maxDiscountAmount(),
             request.terms()
-        );
+        ));
     }
 
     @Test
@@ -164,16 +157,7 @@ class VoucherControllerTest {
             request.terms()
         );
 
-        when(voucherService.updateVoucher(
-            "DISC10",
-            request.validFrom(),
-            request.validUntil(),
-            request.totalQuota(),
-            request.discountPercent(),
-            request.minimumPurchaseAmount(),
-            request.maxDiscountAmount(),
-            request.terms()
-        )).thenReturn(voucher);
+        when(voucherService.updateVoucher("DISC10", request.toCommand())).thenReturn(voucher);
 
         ResponseEntity<VoucherResponse> response = controller.updateVoucher("DISC10", request);
 
@@ -181,8 +165,7 @@ class VoucherControllerTest {
         assertNotNull(response.getBody());
         assertEquals(15, response.getBody().totalQuota());
         assertEquals("Updated terms", response.getBody().terms());
-        verify(voucherService).updateVoucher(
-            "DISC10",
+        verify(voucherService).updateVoucher("DISC10", new UpdateVoucherCommand(
             request.validFrom(),
             request.validUntil(),
             request.totalQuota(),
@@ -190,7 +173,7 @@ class VoucherControllerTest {
             request.minimumPurchaseAmount(),
             request.maxDiscountAmount(),
             request.terms()
-        );
+        ));
     }
 
     @Test

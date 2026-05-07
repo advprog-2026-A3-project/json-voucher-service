@@ -54,7 +54,7 @@ class VoucherServiceTest {
 
         when(voucherWriteRepository.save(any(Voucher.class))).thenReturn(voucher);
 
-        Voucher createdVoucher = voucherService.createVoucher(
+        Voucher createdVoucher = voucherService.createVoucher(new CreateVoucherCommand(
             voucher.getVoucherCode(),
             voucher.getValidFrom(),
             voucher.getValidUntil(),
@@ -63,7 +63,7 @@ class VoucherServiceTest {
             voucher.getMinimumPurchaseAmount(),
             voucher.getMaxDiscountAmount(),
             voucher.getTerms()
-        );
+        ));
 
         assertEquals("DISC10", createdVoucher.getVoucherCode());
         assertEquals(voucher.getValidFrom(), createdVoucher.getValidFrom());
@@ -79,7 +79,7 @@ class VoucherServiceTest {
         LocalDateTime validUntil = LocalDateTime.of(2026, 3, 1, 10, 0);
 
         try {
-            voucherService.createVoucher(
+            voucherService.createVoucher(new CreateVoucherCommand(
                 "DISC10",
                 validFrom,
                 validUntil,
@@ -88,7 +88,7 @@ class VoucherServiceTest {
                 MINIMUM_PURCHASE_AMOUNT,
                 null,
                 "Minimal order applies"
-            );
+            ));
             fail();
         } catch (InvalidVoucherPeriodException exception) {
             assertEquals("validUntil must be after validFrom", exception.getMessage());
@@ -103,7 +103,7 @@ class VoucherServiceTest {
         LocalDateTime validUntil = LocalDateTime.of(2026, 3, 10, 10, 0);
 
         try {
-            voucherService.createVoucher(
+            voucherService.createVoucher(new CreateVoucherCommand(
                 "DISC10",
                 validFrom,
                 validUntil,
@@ -112,7 +112,7 @@ class VoucherServiceTest {
                 MINIMUM_PURCHASE_AMOUNT,
                 null,
                 "Minimal order applies"
-            );
+            ));
             fail();
         } catch (InvalidVoucherPeriodException exception) {
             assertEquals("validUntil must be after validFrom", exception.getMessage());
@@ -205,8 +205,7 @@ class VoucherServiceTest {
         when(voucherReadRepository.findByVoucherCode("DISC10")).thenReturn(Optional.of(voucher));
         when(voucherWriteRepository.save(voucher)).thenReturn(voucher);
 
-        Voucher updatedVoucher = voucherService.updateVoucher(
-            "DISC10",
+        Voucher updatedVoucher = voucherService.updateVoucher("DISC10", new UpdateVoucherCommand(
             newValidFrom,
             newValidUntil,
             15,
@@ -214,7 +213,7 @@ class VoucherServiceTest {
             MINIMUM_PURCHASE_AMOUNT,
             null,
             "New terms"
-        );
+        ));
 
         assertSame(voucher, updatedVoucher);
         assertEquals(newValidFrom, updatedVoucher.getValidFrom());
