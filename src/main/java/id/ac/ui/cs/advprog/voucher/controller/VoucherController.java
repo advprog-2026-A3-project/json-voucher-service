@@ -31,10 +31,14 @@ public class VoucherController {
         this.voucherService = voucherService;
     }
 
+    private VoucherResponse toVoucherResponse(Voucher voucher) {
+        return VoucherResponse.from(voucher);
+    }
+
     @PostMapping
     public ResponseEntity<VoucherResponse> createVoucher(@Valid @RequestBody CreateVoucherRequest request){
         Voucher voucherCreated = voucherService.createVoucher(request.toCommand());
-        return ResponseEntity.status(HttpStatus.CREATED).body(VoucherResponse.from(voucherCreated));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toVoucherResponse(voucherCreated));
     }
 
     @GetMapping
@@ -48,7 +52,7 @@ public class VoucherController {
     @GetMapping("/{voucherCode}")
     public ResponseEntity<VoucherResponse> getVoucherByCode(@PathVariable String voucherCode){
         Voucher voucher = voucherService.getVoucherByCode(voucherCode);
-        return ResponseEntity.ok(VoucherResponse.from(voucher));
+        return ResponseEntity.ok(toVoucherResponse(voucher));
     }
 
     @PutMapping("/{voucherCode}")
@@ -57,7 +61,7 @@ public class VoucherController {
         @Valid @RequestBody UpdateVoucherRequest request
     ){
         Voucher updatedVoucher = voucherService.updateVoucher(voucherCode, request.toCommand());
-        return ResponseEntity.ok(VoucherResponse.from(updatedVoucher));
+        return ResponseEntity.ok(toVoucherResponse(updatedVoucher));
     }
 
     @DeleteMapping("/{voucherCode}")
@@ -75,18 +79,15 @@ public class VoucherController {
             voucherCode,
             request.subtotal()
         );
-        ValidateVoucherResponse response = new ValidateVoucherResponse(
-            voucherCode,
-            request.subtotal(),
-            discountAmount
+        return ResponseEntity.ok(
+            ValidateVoucherResponse.from(voucherCode, request.subtotal(), discountAmount)
         );
-        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{voucherCode}/deactivate")
     public ResponseEntity<VoucherResponse> deactivateVoucher(@PathVariable String voucherCode){
         Voucher voucher = voucherService.deactivateVoucher(voucherCode);
-        return ResponseEntity.ok(VoucherResponse.from(voucher));
+        return ResponseEntity.ok(toVoucherResponse(voucher));
     }
 
     @PostMapping("/{voucherCode}/redeem")
@@ -95,13 +96,6 @@ public class VoucherController {
         @Valid @RequestBody RedeemVoucherRequest request
     ){
         Voucher voucher = voucherService.redeemVoucher(voucherCode, request.subtotal());
-
-        RedeemVoucherResponse response = new RedeemVoucherResponse(
-            voucher.getVoucherCode(),
-            request.subtotal(),
-            voucher.getQuotaRemaining()
-        );
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(RedeemVoucherResponse.from(voucher, request.subtotal()));
     }
 }
