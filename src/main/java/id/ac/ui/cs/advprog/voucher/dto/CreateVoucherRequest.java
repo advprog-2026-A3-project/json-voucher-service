@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.voucher.dto;
 
+import id.ac.ui.cs.advprog.voucher.service.CreateVoucherCommand;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,4 +15,17 @@ public record CreateVoucherRequest(
     @NotNull @Min(0) Long minimumPurchaseAmount,
     @Min(0) Long maxDiscountAmount,
     @NotBlank String terms
-) {}
+) {
+    public CreateVoucherCommand toCommand() {
+        return new CreateVoucherCommand(
+            voucherCode,
+            validFrom,
+            validUntil,
+            totalQuota,
+            discountPercent,
+            minimumPurchaseAmount,
+            maxDiscountAmount,
+            terms
+        );
+    }
+}

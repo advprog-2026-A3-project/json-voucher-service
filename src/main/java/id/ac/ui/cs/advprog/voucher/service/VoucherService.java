@@ -24,51 +24,33 @@ public class VoucherService {
     }
 
     @Transactional
-    public Voucher createVoucher(
-        String voucherCode,
-        LocalDateTime validFrom,
-        LocalDateTime validUntil,
-        Integer totalQuota,
-        Integer discountPercent,
-        Long minimumPurchaseAmount,
-        Long maxDiscountAmount,
-        String terms
-    ){
-        validateVoucherPeriod(validFrom, validUntil);
+    public Voucher createVoucher(CreateVoucherCommand command){
+        validateVoucherPeriod(command.validFrom(), command.validUntil());
         Voucher voucher = new Voucher(
-            voucherCode,
-            validFrom,
-            validUntil,
-            totalQuota,
-            discountPercent,
-            minimumPurchaseAmount,
-            maxDiscountAmount,
-            terms
+            command.voucherCode(),
+            command.validFrom(),
+            command.validUntil(),
+            command.totalQuota(),
+            command.discountPercent(),
+            command.minimumPurchaseAmount(),
+            command.maxDiscountAmount(),
+            command.terms()
         );
         return voucherWriteRepository.save(voucher);
     }
 
     @Transactional
-    public Voucher updateVoucher(
-        String voucherCode,
-        LocalDateTime validFrom,
-        LocalDateTime validUntil,
-        Integer totalQuota,
-        Integer discountPercent,
-        Long minimumPurchaseAmount,
-        Long maxDiscountAmount,
-        String terms
-    ){
-        validateVoucherPeriod(validFrom, validUntil);
+    public Voucher updateVoucher(String voucherCode, UpdateVoucherCommand command){
+        validateVoucherPeriod(command.validFrom(), command.validUntil());
         Voucher voucher = findVoucherByCode(voucherCode);
         voucher.updateDetails(
-            validFrom,
-            validUntil,
-            totalQuota,
-            discountPercent,
-            minimumPurchaseAmount,
-            maxDiscountAmount,
-            terms
+            command.validFrom(),
+            command.validUntil(),
+            command.totalQuota(),
+            command.discountPercent(),
+            command.minimumPurchaseAmount(),
+            command.maxDiscountAmount(),
+            command.terms()
         );
         return voucherWriteRepository.save(voucher);
     }
