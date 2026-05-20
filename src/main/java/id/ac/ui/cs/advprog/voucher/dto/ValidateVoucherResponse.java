@@ -4,4 +4,8 @@ public record ValidateVoucherResponse(
     String voucherCode,
     Long subtotal,
     Long discountAmount
-){}
+) {
+    public static ValidateVoucherResponse from(String voucherCode, Long subtotal, Long discountAmount) {
+        return new ValidateVoucherResponse(voucherCode, subtotal, discountAmount);
+    }
+}
