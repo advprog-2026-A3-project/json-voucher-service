@@ -113,7 +113,7 @@ jobs:
         run: |
           for i in {1..12}; do
             if ssh -p "$SSH_PORT" -i ~/.ssh/ec2_key "$EC2_USER@$EC2_HOST" \
-              "curl --fail --silent --show-error http://127.0.0.1:$APP_PORT/actuator/health" | grep '"status":"UP"'; then
+              "curl --fail --silent --show-error 127.0.0.1:$APP_PORT/actuator/health" | grep '"status":"UP"'; then
               exit 0
             fi
             echo "Health check attempt $i failed, retrying in 5 seconds..."
