@@ -54,12 +54,11 @@ jobs:
       - name: SonarCloud analysis
         id: sonar_scan
         if: ${{ env.SONAR_TOKEN != '' }}
-        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
-        run: ./gradlew --no-daemon sonar --stacktrace
+        run: ./gradlew --no-daemon sonar -Dsonar.token="${SONAR_TOKEN}" --stacktrace
 
       - name: SonarCloud scanner warning
-        if: ${{ steps.sonar_scan.outcome == 'failure' }}
-        run: echo "::warning::Sonar scanner command failed. Verify SONAR_TOKEN or SonarCloud automatic analysis settings."
+        if: ${{ failure() && env.SONAR_TOKEN == '' }}
+        run: echo "::warning::SONAR_TOKEN is missing. SonarCloud analysis was skipped."

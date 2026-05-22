@@ -63,7 +63,9 @@ jobs:
         env:
           EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
           EC2_USER: ${{ secrets.AWS_EC2_USER }}
-        run: scp -P "$SSH_PORT" -i ~/.ssh/ec2_key "$IMAGE_NAME.tar.gz" "$EC2_USER@$EC2_HOST:/tmp/$IMAGE_NAME.tar.gz"
+        run: |
+          ssh -p "$SSH_PORT" -i ~/.ssh/ec2_key "$EC2_USER@$EC2_HOST" "rm -f /tmp/$IMAGE_NAME.tar.gz"
+          scp -P "$SSH_PORT" -i ~/.ssh/ec2_key "$IMAGE_NAME.tar.gz" "$EC2_USER@$EC2_HOST:/tmp/$IMAGE_NAME.tar.gz"
 
       - name: Deploy container on EC2
         env:
@@ -81,6 +83,13 @@ jobs:
               sudo apt-get install -y docker.io
               sudo systemctl enable --now docker
             fi
+
+            # Free space before importing the new image into containerd.
+            sudo docker rm -f $CONTAINER_NAME || true
+            sudo docker images '$IMAGE_NAME' --format '{{.Repository}}:{{.Tag}}' | xargs -r sudo docker rmi -f || true
+            sudo docker builder prune -af || true
+            sudo docker image prune -af || true
+            sudo docker container prune -f || true
 
             sudo docker load -i /tmp/$IMAGE_NAME.tar.gz
             sudo docker rm -f $CONTAINER_NAME || true
