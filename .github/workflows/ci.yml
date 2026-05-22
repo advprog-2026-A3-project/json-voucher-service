@@ -49,7 +49,30 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build and test (with JaCoCo report)
-        run: ./gradlew --no-daemon clean test jacocoTestReport --stacktrace
+        run: ./gradlew --no-daemon clean check jacocoTestReport --stacktrace
+
+      - name: Upload JaCoCo HTML report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-html-report
+          path: build/reports/jacoco/test/html
+
+      - name: Upload JaCoCo XML report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-xml-report
+          path: build/reports/jacoco/test/jacocoTestReport.xml
+
+      - name: Upload JUnit test reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-reports
+          path: |
+            build/test-results/test
+            build/reports/tests/test
 
       - name: SonarCloud analysis
         id: sonar_scan
