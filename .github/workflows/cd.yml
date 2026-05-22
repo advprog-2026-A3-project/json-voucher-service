@@ -2,7 +2,7 @@ name: AWS EC2 CD
 
 on:
   push:
-    branches: ["staging", "main", "infra/docker-aws-setup"]
+    branches: ["staging", "main", "infra/docker-aws-setup", "feat/monitoring"]
   workflow_dispatch:
 
 concurrency:
