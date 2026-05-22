@@ -49,17 +49,39 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build and test (with JaCoCo report)
-        run: ./gradlew --no-daemon clean test jacocoTestReport --stacktrace
+        run: ./gradlew --no-daemon clean check jacocoTestReport --stacktrace
+
+      - name: Upload JaCoCo HTML report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-html-report
+          path: build/reports/jacoco/test/html
+
+      - name: Upload JaCoCo XML report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-xml-report
+          path: build/reports/jacoco/test/jacocoTestReport.xml
+
+      - name: Upload JUnit test reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-reports
+          path: |
+            build/test-results/test
+            build/reports/tests/test
 
       - name: SonarCloud analysis
         id: sonar_scan
         if: ${{ env.SONAR_TOKEN != '' }}
-        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
-        run: ./gradlew --no-daemon sonar --stacktrace
+        run: ./gradlew --no-daemon sonar -Dsonar.token="${SONAR_TOKEN}" --stacktrace
 
       - name: SonarCloud scanner warning
-        if: ${{ steps.sonar_scan.outcome == 'failure' }}
-        run: echo "::warning::Sonar scanner command failed. Verify SONAR_TOKEN or SonarCloud automatic analysis settings."
+        if: ${{ failure() && env.SONAR_TOKEN == '' }}
+        run: echo "::warning::SONAR_TOKEN is missing. SonarCloud analysis was skipped."

@@ -63,7 +63,9 @@ jobs:
         env:
           EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
           EC2_USER: ${{ secrets.AWS_EC2_USER }}
-        run: scp -P "$SSH_PORT" -i ~/.ssh/ec2_key "$IMAGE_NAME.tar.gz" "$EC2_USER@$EC2_HOST:/tmp/$IMAGE_NAME.tar.gz"
+        run: |
+          ssh -p "$SSH_PORT" -i ~/.ssh/ec2_key "$EC2_USER@$EC2_HOST" "rm -f /tmp/$IMAGE_NAME.tar.gz"
+          scp -P "$SSH_PORT" -i ~/.ssh/ec2_key "$IMAGE_NAME.tar.gz" "$EC2_USER@$EC2_HOST:/tmp/$IMAGE_NAME.tar.gz"
 
       - name: Deploy container on EC2
         env:
@@ -81,6 +83,13 @@ jobs:
               sudo apt-get install -y docker.io
               sudo systemctl enable --now docker
             fi
+
+            # Free space before importing the new image into containerd.
+            sudo docker rm -f $CONTAINER_NAME || true
+            sudo docker images '$IMAGE_NAME' --format '{{.Repository}}:{{.Tag}}' | xargs -r sudo docker rmi -f || true
+            sudo docker builder prune -af || true
+            sudo docker image prune -af || true
+            sudo docker container prune -f || true
 
             sudo docker load -i /tmp/$IMAGE_NAME.tar.gz
             sudo docker rm -f $CONTAINER_NAME || true
@@ -100,9 +109,11 @@ jobs:
       - name: Smoke test EC2 health endpoint
         env:
           EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
+          EC2_USER: ${{ secrets.AWS_EC2_USER }}
         run: |
           for i in {1..12}; do
-            if curl --fail --silent --show-error "http://$EC2_HOST:$APP_PORT/actuator/health" | grep '"status":"UP"'; then
+            if ssh -p "$SSH_PORT" -i ~/.ssh/ec2_key "$EC2_USER@$EC2_HOST" \
+              "curl --fail --silent --show-error 127.0.0.1:$APP_PORT/actuator/health" | grep '"status":"UP"'; then
               exit 0
             fi
             echo "Health check attempt $i failed, retrying in 5 seconds..."
