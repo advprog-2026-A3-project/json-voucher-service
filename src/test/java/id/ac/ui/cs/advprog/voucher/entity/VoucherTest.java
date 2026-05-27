@@ -283,12 +283,25 @@ class VoucherTest {
     }
 
     private void setActive(Voucher voucher, boolean active) {
+        Field activeField = getActiveField();
+        activeField.setAccessible(true);
+        setActiveValue(activeField, voucher, active);
+    }
+
+    private Field getActiveField() {
         try {
-            Field activeField = Voucher.class.getDeclaredField("active");
-            activeField.setAccessible(true);
+            return Voucher.class.getDeclaredField("active");
+        } catch (NoSuchFieldException exception) {
+            throw new AssertionError(exception);
+        }
+    }
+
+    private void setActiveValue(Field activeField, Voucher voucher, boolean active) {
+        try {
             activeField.set(voucher, active);
-        } catch (ReflectiveOperationException exception) {
+        } catch (IllegalAccessException exception) {
             throw new AssertionError(exception);
         }
     }
 }
+
