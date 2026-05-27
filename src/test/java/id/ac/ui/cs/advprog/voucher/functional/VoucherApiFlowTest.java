@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.voucher.functional;
 
+import id.ac.ui.cs.advprog.voucher.dto.ApiErrorResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.voucher.repository.VoucherReadRepository;
@@ -184,7 +185,7 @@ class VoucherApiFlowTest {
 
         assertEquals(400, response.statusCode());
         JsonNode json = objectMapper.readTree(response.body());
-        assertEquals("ERROR", json.get("status").asText());
+        assertEquals(ApiErrorResponse.ERROR_STATUS, json.get("status").asText());
         assertTrue(json.get("message").asText().toLowerCase().contains("must not be blank"));
     }
 
@@ -195,3 +196,4 @@ class VoucherApiFlowTest {
             .build();
     }
 }
+
