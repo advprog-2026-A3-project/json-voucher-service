@@ -6,5 +6,6 @@ import java.util.Optional;
 
 public interface VoucherReadRepository extends ReadRepository<Voucher> {
     Optional<Voucher> findByVoucherCode(String voucherCode);
+    Optional<Voucher> findByVoucherCodeForUpdate(String voucherCode);
     List<Voucher> findAllByCreatedAtDesc();
 }

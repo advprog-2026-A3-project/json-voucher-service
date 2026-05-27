@@ -50,6 +50,18 @@ class VoucherRepositoryTest {
     }
 
     @Test
+    void findByVoucherCodeForUpdateDelegatesToJpaRepository() {
+        Voucher voucher = createVoucher("WELCOMEJSON10");
+        when(jpaVoucherRepository.findByVoucherCodeForUpdate("WELCOMEJSON10")).thenReturn(Optional.of(voucher));
+
+        Optional<Voucher> foundVoucher = voucherRepository.findByVoucherCodeForUpdate("WELCOMEJSON10");
+
+        assertTrue(foundVoucher.isPresent());
+        assertSame(voucher, foundVoucher.orElseThrow());
+        verify(jpaVoucherRepository).findByVoucherCodeForUpdate("WELCOMEJSON10");
+    }
+
+    @Test
     void findAllByCreatedAtDescDelegatesToJpaRepository() {
         Voucher voucher = createVoucher("WELCOMEJSON10");
         when(jpaVoucherRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(voucher));

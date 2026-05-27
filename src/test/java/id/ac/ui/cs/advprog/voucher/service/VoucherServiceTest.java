@@ -188,7 +188,7 @@ class VoucherServiceTest {
     }
 
     @Test
-    void testUpdate() {
+    void testUpdateUsesLockedRead() {
         Voucher voucher = new Voucher(
             "DISC10",
             LocalDateTime.of(2026, 3, 1, 10, 0),
@@ -202,7 +202,7 @@ class VoucherServiceTest {
         LocalDateTime newValidFrom = LocalDateTime.of(2026, 3, 2, 10, 0);
         LocalDateTime newValidUntil = LocalDateTime.of(2026, 3, 12, 10, 0);
 
-        when(voucherReadRepository.findByVoucherCode("DISC10")).thenReturn(Optional.of(voucher));
+        when(voucherReadRepository.findByVoucherCodeForUpdate("DISC10")).thenReturn(Optional.of(voucher));
         when(voucherWriteRepository.save(voucher)).thenReturn(voucher);
 
         Voucher updatedVoucher = voucherService.updateVoucher("DISC10", new UpdateVoucherCommand(
@@ -225,11 +225,12 @@ class VoucherServiceTest {
             () -> assertEquals(MINIMUM_PURCHASE_AMOUNT, updatedVoucher.getMinimumPurchaseAmount()),
             () -> assertEquals("New terms", updatedVoucher.getTerms())
         );
+        verify(voucherReadRepository).findByVoucherCodeForUpdate("DISC10");
         verify(voucherWriteRepository).save(voucher);
     }
 
     @Test
-    void testDeleteByCode() {
+    void testDeleteByCodeUsesLockedRead() {
         Voucher voucher = new Voucher(
             "DISC10",
             LocalDateTime.of(2026, 3, 1, 10, 0),
@@ -241,10 +242,11 @@ class VoucherServiceTest {
             "Terms"
         );
 
-        when(voucherReadRepository.findByVoucherCode("DISC10")).thenReturn(Optional.of(voucher));
+        when(voucherReadRepository.findByVoucherCodeForUpdate("DISC10")).thenReturn(Optional.of(voucher));
 
         voucherService.deleteVoucher("DISC10");
 
+        verify(voucherReadRepository).findByVoucherCodeForUpdate("DISC10");
         verify(voucherWriteRepository).delete(voucher);
     }
 
@@ -271,7 +273,7 @@ class VoucherServiceTest {
     }
 
     @Test
-    void testDeactivateVoucher() {
+    void testDeactivateVoucherUsesLockedRead() {
         Voucher voucher = new Voucher(
             "DISC10",
             LocalDateTime.now().minusDays(1),
@@ -283,11 +285,12 @@ class VoucherServiceTest {
             "Terms"
         );
 
-        when(voucherReadRepository.findByVoucherCode("DISC10")).thenReturn(Optional.of(voucher));
+        when(voucherReadRepository.findByVoucherCodeForUpdate("DISC10")).thenReturn(Optional.of(voucher));
 
         voucherService.deactivateVoucher("DISC10");
 
         assertFalse(voucher.getActive());
+        verify(voucherReadRepository).findByVoucherCodeForUpdate("DISC10");
         verify(voucherWriteRepository).save(voucher);
     }
 
@@ -349,7 +352,7 @@ class VoucherServiceTest {
     }
 
     @Test
-    void testRedeemVoucher() {
+    void testRedeemVoucherUsesLockedRead() {
         Voucher voucher = new Voucher(
             "DISC10",
             LocalDateTime.now().minusDays(1),
@@ -361,18 +364,18 @@ class VoucherServiceTest {
             "Terms"
         );
 
-        when(voucherReadRepository.findByVoucherCode("DISC10")).thenReturn(Optional.of(voucher));
+        when(voucherReadRepository.findByVoucherCodeForUpdate("DISC10")).thenReturn(Optional.of(voucher));
         when(voucherWriteRepository.save(voucher)).thenReturn(voucher);
 
         Voucher redeemedVoucher = voucherService.redeemVoucher("DISC10", 200000);
 
         assertEquals(4, redeemedVoucher.getQuotaRemaining());
-        verify(voucherReadRepository).findByVoucherCode("DISC10");
+        verify(voucherReadRepository).findByVoucherCodeForUpdate("DISC10");
         verify(voucherWriteRepository).save(voucher);
     }
 
     @Test
-    void testRedeemVoucherIfSubtotalBelowMinimum() {
+    void testRedeemVoucherIfSubtotalBelowMinimumUsesLockedRead() {
         Voucher voucher = new Voucher(
             "DISC10",
             LocalDateTime.now().minusDays(1),
@@ -384,14 +387,14 @@ class VoucherServiceTest {
             "Terms"
         );
 
-        when(voucherReadRepository.findByVoucherCode("DISC10")).thenReturn(Optional.of(voucher));
+        when(voucherReadRepository.findByVoucherCodeForUpdate("DISC10")).thenReturn(Optional.of(voucher));
 
         assertThrows(
             InvalidVoucherStateException.class,
             () -> voucherService.redeemVoucher("DISC10", 50000)
         );
 
-        verify(voucherReadRepository).findByVoucherCode("DISC10");
+        verify(voucherReadRepository).findByVoucherCodeForUpdate("DISC10");
         verify(voucherWriteRepository, never()).save(any());
     }
 }
