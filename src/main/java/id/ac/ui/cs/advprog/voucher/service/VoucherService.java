@@ -42,7 +42,7 @@ public class VoucherService {
     @Transactional
     public Voucher updateVoucher(String voucherCode, UpdateVoucherCommand command){
         validateVoucherPeriod(command.validFrom(), command.validUntil());
-        Voucher voucher = findVoucherByCode(voucherCode);
+        Voucher voucher = findVoucherByCodeForUpdate(voucherCode);
         voucher.updateDetails(
             command.validFrom(),
             command.validUntil(),
@@ -57,7 +57,7 @@ public class VoucherService {
 
     @Transactional
     public void deleteVoucher(String voucherCode){
-        Voucher voucher = findVoucherByCode(voucherCode);
+        Voucher voucher = findVoucherByCodeForUpdate(voucherCode);
         voucherWriteRepository.delete(voucher);
     }
 
@@ -71,6 +71,11 @@ public class VoucherService {
 
     private Voucher findVoucherByCode(String voucherCode){
         return voucherReadRepository.findByVoucherCode(voucherCode)
+            .orElseThrow(VoucherNotFoundException::new);
+    }
+
+    private Voucher findVoucherByCodeForUpdate(String voucherCode) {
+        return voucherReadRepository.findByVoucherCodeForUpdate(voucherCode)
             .orElseThrow(VoucherNotFoundException::new);
     }
 
@@ -93,14 +98,14 @@ public class VoucherService {
 
     @Transactional
     public Voucher deactivateVoucher(String voucherCode){
-        Voucher voucher = findVoucherByCode(voucherCode);
+        Voucher voucher = findVoucherByCodeForUpdate(voucherCode);
         voucher.deactivate();
         return voucherWriteRepository.save(voucher);
     }
 
     @Transactional
     public Voucher redeemVoucher(String voucherCode, long subtotal){
-        Voucher voucher = findVoucherByCode(voucherCode);
+        Voucher voucher = findVoucherByCodeForUpdate(voucherCode);
         voucher.redeem(LocalDateTime.now(), subtotal);
         return voucherWriteRepository.save(voucher);
     }

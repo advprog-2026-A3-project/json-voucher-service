@@ -24,6 +24,11 @@ public class VoucherRepository implements VoucherReadRepository, VoucherWriteRep
     }
 
     @Override
+    public Optional<Voucher> findByVoucherCodeForUpdate(String voucherCode) {
+        return jpaVoucherRepository.findByVoucherCodeForUpdate(voucherCode);
+    }
+
+    @Override
     public List<Voucher> findAllByCreatedAtDesc(){
         return jpaVoucherRepository.findAllByOrderByCreatedAtDesc();
     }

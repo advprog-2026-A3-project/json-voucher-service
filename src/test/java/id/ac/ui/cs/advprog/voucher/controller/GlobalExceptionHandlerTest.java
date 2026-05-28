@@ -28,7 +28,7 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(404, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertEquals("ERROR", response.getBody().status());
+        assertEquals(ApiErrorResponse.ERROR_STATUS, response.getBody().status());
         assertEquals("voucher not found", response.getBody().message());
     }
 
@@ -39,7 +39,7 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(400, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertEquals("ERROR", response.getBody().status());
+        assertEquals(ApiErrorResponse.ERROR_STATUS, response.getBody().status());
         assertEquals("voucher is inactive", response.getBody().message());
     }
 
@@ -50,7 +50,7 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(400, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertEquals("ERROR", response.getBody().status());
+        assertEquals(ApiErrorResponse.ERROR_STATUS, response.getBody().status());
         assertEquals("validUntil must be after validFrom", response.getBody().message());
     }
 
@@ -61,7 +61,7 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(409, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertEquals("ERROR", response.getBody().status());
+        assertEquals(ApiErrorResponse.ERROR_STATUS, response.getBody().status());
         assertEquals("voucher quota exhausted", response.getBody().message());
     }
 
@@ -83,7 +83,7 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(400, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertEquals("ERROR", response.getBody().status());
+        assertEquals(ApiErrorResponse.ERROR_STATUS, response.getBody().status());
         assertEquals("must not be blank", response.getBody().message());
     }
 }

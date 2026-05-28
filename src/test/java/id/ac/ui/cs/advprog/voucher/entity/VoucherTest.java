@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 class VoucherTest {
     private static final int DISCOUNT_PERCENT = 10;
@@ -46,12 +45,12 @@ class VoucherTest {
             "Terms"
         );
 
-        try {
-            voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000);
-            fail();
-        } catch (InvalidVoucherStateException exception){
-            assertEquals("voucher is not yet valid", exception.getMessage());
-        }
+        InvalidVoucherStateException exception = assertThrows(
+            InvalidVoucherStateException.class,
+            () -> voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000)
+        );
+
+        assertEquals("voucher is not yet valid", exception.getMessage());
     }
 
     @Test
@@ -67,12 +66,12 @@ class VoucherTest {
             "Terms"
         );
 
-        try {
-            voucher.redeem(LocalDateTime.of(2026, 3, 11, 10, 0), 100000);
-            fail();
-        } catch (InvalidVoucherStateException exception){
-            assertEquals("voucher has expired", exception.getMessage());
-        }
+        InvalidVoucherStateException exception = assertThrows(
+            InvalidVoucherStateException.class,
+            () -> voucher.redeem(LocalDateTime.of(2026, 3, 11, 10, 0), 100000)
+        );
+
+        assertEquals("voucher has expired", exception.getMessage());
     }
 
     @Test
@@ -89,12 +88,12 @@ class VoucherTest {
         );
 
         voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000);
-        try {
-            voucher.redeem(LocalDateTime.of(2026, 3, 5, 11, 0), 100000);
-            fail();
-        } catch (VoucherQuotaExhaustedException exception){
-            assertEquals("voucher quota exhausted", exception.getMessage());
-        }
+        VoucherQuotaExhaustedException exception = assertThrows(
+            VoucherQuotaExhaustedException.class,
+            () -> voucher.redeem(LocalDateTime.of(2026, 3, 5, 11, 0), 100000)
+        );
+
+        assertEquals("voucher quota exhausted", exception.getMessage());
     }
 
     @Test
@@ -138,20 +137,14 @@ class VoucherTest {
             "Terms"
         );
 
-        try {
-            Field activeField = Voucher.class.getDeclaredField("active");
-            activeField.setAccessible(true);
-            activeField.set(voucher, false);
-        } catch (ReflectiveOperationException exception){
-            fail();
-        }
+        setActive(voucher, false);
 
-        try {
-            voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000);
-            fail();
-        } catch (InvalidVoucherStateException exception){
-            assertEquals("voucher is inactive", exception.getMessage());
-        }
+        InvalidVoucherStateException exception = assertThrows(
+            InvalidVoucherStateException.class,
+            () -> voucher.redeem(LocalDateTime.of(2026, 3, 5, 10, 0), 100000)
+        );
+
+        assertEquals("voucher is inactive", exception.getMessage());
     }
 
     @Test
@@ -288,4 +281,27 @@ class VoucherTest {
 
         assertFalse(voucher.isPubliclyAvailable(LocalDateTime.now()));
     }
+
+    private void setActive(Voucher voucher, boolean active) {
+        Field activeField = getActiveField();
+        activeField.setAccessible(true);
+        setActiveValue(activeField, voucher, active);
+    }
+
+    private Field getActiveField() {
+        try {
+            return Voucher.class.getDeclaredField("active");
+        } catch (NoSuchFieldException exception) {
+            throw new AssertionError(exception);
+        }
+    }
+
+    private void setActiveValue(Field activeField, Voucher voucher, boolean active) {
+        try {
+            activeField.set(voucher, active);
+        } catch (IllegalAccessException exception) {
+            throw new AssertionError(exception);
+        }
+    }
 }
+
