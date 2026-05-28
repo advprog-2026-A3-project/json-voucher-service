@@ -100,11 +100,10 @@ jobs:
             sudo tar -xzf /tmp/monitoring-stack.tar.gz -C $MONITORING_STACK_DIR --strip-components=1
             sudo chown -R $EC2_USER:$EC2_USER $MONITORING_STACK_DIR
 
-            sudo docker rm -f $CONTAINER_NAME || true
-            sudo docker images '$IMAGE_NAME' --format '{{.Repository}}:{{.Tag}}' | xargs -r sudo docker rmi -f || true
-            sudo docker builder prune -af || true
-            sudo docker image prune -af || true
-            sudo docker container prune -f || true
+            PREVIOUS_IMAGE_ID=\$(sudo docker inspect --format='{{.Image}}' $CONTAINER_NAME 2>/dev/null || true)
+            if [ -n "\$PREVIOUS_IMAGE_ID" ]; then
+              sudo docker image tag "\$PREVIOUS_IMAGE_ID" $IMAGE_NAME:rollback || true
+            fi
 
             sudo docker load -i /tmp/$IMAGE_NAME.tar.gz
             sudo docker rm -f $CONTAINER_NAME || true
@@ -156,3 +155,53 @@ jobs:
           done
           echo "Monitoring stack did not become healthy in time."
           exit 1
+
+      - name: Collect EC2 diagnostics on failure
+        if: failure()
+        env:
+          EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
+          EC2_USER: ${{ secrets.AWS_EC2_USER }}
+        run: |
+          ssh -p "$SSH_PORT" -i ~/.ssh/ec2_key "$EC2_USER@$EC2_HOST" "
+            echo '=== docker ps -a ==='
+            sudo docker ps -a || true
+            echo '=== voucher container logs ==='
+            sudo docker logs --tail 200 $CONTAINER_NAME || true
+            echo '=== monitoring compose ps ==='
+            cd $MONITORING_STACK_DIR && sudo docker compose ps || true
+            echo '=== prometheus logs ==='
+            sudo docker logs --tail 100 voucher-prometheus || true
+            echo '=== grafana logs ==='
+            sudo docker logs --tail 100 voucher-grafana || true
+          "
+
+      - name: Roll back EC2 app on failure
+        if: failure()
+        env:
+          EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
+          EC2_USER: ${{ secrets.AWS_EC2_USER }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_DB_USERNAME: ${{ secrets.SUPABASE_DB_USERNAME }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          APP_CORS_ALLOWED_ORIGINS: ${{ secrets.APP_CORS_ALLOWED_ORIGINS || 'http://localhost:3000' }}
+        run: |
+          ssh -p "$SSH_PORT" -i ~/.ssh/ec2_key "$EC2_USER@$EC2_HOST" "
+            set -e
+            if sudo docker image inspect $IMAGE_NAME:rollback >/dev/null 2>&1; then
+              sudo docker rm -f $CONTAINER_NAME || true
+              sudo docker run -d \
+                --name $CONTAINER_NAME \
+                --restart unless-stopped \
+                --network $DOCKER_NETWORK \
+                -p $APP_PORT:8080 \
+                -e PORT=8080 \
+                -e SUPABASE_DB_URL='$SUPABASE_DB_URL' \
+                -e SUPABASE_DB_USERNAME='$SUPABASE_DB_USERNAME' \
+                -e SUPABASE_DB_PASSWORD='$SUPABASE_DB_PASSWORD' \
+                -e APP_CORS_ALLOWED_ORIGINS='$APP_CORS_ALLOWED_ORIGINS' \
+                $IMAGE_NAME:rollback
+              echo 'Rolled back to previous app image.'
+            else
+              echo 'No rollback image available; skipping rollback.'
+            fi
+          "
