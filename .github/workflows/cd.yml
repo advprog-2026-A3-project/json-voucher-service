@@ -2,7 +2,7 @@ name: AWS EC2 CD
 
 on:
   push:
-    branches: ["staging", "main", "infra/docker-aws-setup", "feat/monitoring"]
+    branches: ["staging", "main", "infra/docker-aws-setup", "feat/monitoring", "revision"]
   workflow_dispatch:
 
 concurrency:
@@ -18,6 +18,8 @@ jobs:
       IMAGE_NAME: json-voucher-service
       CONTAINER_NAME: json-voucher-service
       APP_PORT: 8080
+      MONITORING_STACK_DIR: /opt/json-voucher-monitoring
+      DOCKER_NETWORK: voucher-observability
       SSH_PORT: ${{ secrets.AWS_EC2_PORT || '22' }}
 
     steps:
@@ -29,6 +31,9 @@ jobs:
 
       - name: Export Docker image
         run: docker save "$IMAGE_NAME:latest" | gzip > "$IMAGE_NAME.tar.gz"
+
+      - name: Package monitoring stack
+        run: tar -czf monitoring-stack.tar.gz monitoring
 
       - name: Validate deploy secrets
         env:
@@ -59,15 +64,16 @@ jobs:
           chmod 600 ~/.ssh/ec2_key
           ssh-keyscan -p "$SSH_PORT" "$EC2_HOST" >> ~/.ssh/known_hosts
 
-      - name: Upload Docker image to EC2
+      - name: Upload deploy artifacts to EC2
         env:
           EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
           EC2_USER: ${{ secrets.AWS_EC2_USER }}
         run: |
-          ssh -p "$SSH_PORT" -i ~/.ssh/ec2_key "$EC2_USER@$EC2_HOST" "rm -f /tmp/$IMAGE_NAME.tar.gz"
+          ssh -p "$SSH_PORT" -i ~/.ssh/ec2_key "$EC2_USER@$EC2_HOST" "rm -f /tmp/$IMAGE_NAME.tar.gz /tmp/monitoring-stack.tar.gz"
           scp -P "$SSH_PORT" -i ~/.ssh/ec2_key "$IMAGE_NAME.tar.gz" "$EC2_USER@$EC2_HOST:/tmp/$IMAGE_NAME.tar.gz"
+          scp -P "$SSH_PORT" -i ~/.ssh/ec2_key monitoring-stack.tar.gz "$EC2_USER@$EC2_HOST:/tmp/monitoring-stack.tar.gz"
 
-      - name: Deploy container on EC2
+      - name: Deploy app and monitoring on EC2
         env:
           EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
           EC2_USER: ${{ secrets.AWS_EC2_USER }}
@@ -80,11 +86,20 @@ jobs:
             set -e
             if ! command -v docker >/dev/null 2>&1; then
               sudo apt-get update
-              sudo apt-get install -y docker.io
+              sudo apt-get install -y docker.io docker-compose-plugin
               sudo systemctl enable --now docker
             fi
 
-            # Free space before importing the new image into containerd.
+            if ! sudo docker compose version >/dev/null 2>&1; then
+              sudo apt-get update
+              sudo apt-get install -y docker-compose-plugin
+            fi
+
+            sudo docker network create $DOCKER_NETWORK >/dev/null 2>&1 || true
+            sudo mkdir -p $MONITORING_STACK_DIR
+            sudo tar -xzf /tmp/monitoring-stack.tar.gz -C $MONITORING_STACK_DIR --strip-components=1
+            sudo chown -R $EC2_USER:$EC2_USER $MONITORING_STACK_DIR
+
             sudo docker rm -f $CONTAINER_NAME || true
             sudo docker images '$IMAGE_NAME' --format '{{.Repository}}:{{.Tag}}' | xargs -r sudo docker rmi -f || true
             sudo docker builder prune -af || true
@@ -96,6 +111,7 @@ jobs:
             sudo docker run -d \
               --name $CONTAINER_NAME \
               --restart unless-stopped \
+              --network $DOCKER_NETWORK \
               -p $APP_PORT:8080 \
               -e PORT=8080 \
               -e SUPABASE_DB_URL='$SUPABASE_DB_URL' \
@@ -103,10 +119,13 @@ jobs:
               -e SUPABASE_DB_PASSWORD='$SUPABASE_DB_PASSWORD' \
               -e APP_CORS_ALLOWED_ORIGINS='$APP_CORS_ALLOWED_ORIGINS' \
               $IMAGE_NAME:latest
-            rm -f /tmp/$IMAGE_NAME.tar.gz
+
+            cd $MONITORING_STACK_DIR
+            sudo docker compose up -d --remove-orphans
+            rm -f /tmp/$IMAGE_NAME.tar.gz /tmp/monitoring-stack.tar.gz
           "
 
-      - name: Smoke test EC2 health endpoint
+      - name: Smoke test EC2 app health endpoint
         env:
           EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
           EC2_USER: ${{ secrets.AWS_EC2_USER }}
@@ -116,8 +135,24 @@ jobs:
               "curl --fail --silent --show-error 127.0.0.1:$APP_PORT/actuator/health" | grep '"status":"UP"'; then
               exit 0
             fi
-            echo "Health check attempt $i failed, retrying in 5 seconds..."
+            echo "App health check attempt $i failed, retrying in 5 seconds..."
             sleep 5
           done
           echo "Service did not become healthy in time."
+          exit 1
+
+      - name: Smoke test EC2 monitoring stack
+        env:
+          EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
+          EC2_USER: ${{ secrets.AWS_EC2_USER }}
+        run: |
+          for i in {1..12}; do
+            if ssh -p "$SSH_PORT" -i ~/.ssh/ec2_key "$EC2_USER@$EC2_HOST" \
+              "curl --fail --silent 127.0.0.1:9090/-/ready >/dev/null && curl --fail --silent 127.0.0.1:3001/api/health | grep 'ok' >/dev/null"; then
+              exit 0
+            fi
+            echo "Monitoring health check attempt $i failed, retrying in 5 seconds..."
+            sleep 5
+          done
+          echo "Monitoring stack did not become healthy in time."
           exit 1

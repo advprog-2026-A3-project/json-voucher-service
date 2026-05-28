@@ -7,6 +7,8 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - voucher-observability
 
   grafana:
     image: grafana/grafana:12.2.0
@@ -24,3 +26,10 @@ services:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - voucher-observability
+
+networks:
+  voucher-observability:
+    external: true
+    name: voucher-observability
